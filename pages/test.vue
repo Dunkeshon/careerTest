@@ -16,26 +16,11 @@
 
       <!-- Question Card -->
       <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-6">
-          {{ questions[currentQuestionIndex] }}
-        </h2>
-
-        <!-- Rating Buttons -->
-        <div class="grid grid-cols-5 gap-2">
-          <button 
-            v-for="rating in 5" 
-            :key="rating"
-            @click="selectAnswer(rating)"
-            :class="[
-              'py-3 px-2 rounded-xl text-center transition-colors duration-200',
-              answers[currentQuestionIndex] === rating 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            ]"
-          >
-            {{ rating }}
-          </button>
-        </div>
+        <LikertQuestion
+          v-if="questions.length"
+          :question="questions[currentQuestionIndex]"
+          v-model:value="answers[currentQuestionIndex]"
+        />
       </div>
 
       <!-- Navigation Buttons -->
@@ -81,6 +66,9 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue'
+import LikertQuestion from '~/components/LikertQuestion.vue'
+
 const questions = ref([])
 const answers = ref([])
 const currentQuestionIndex = ref(0)
