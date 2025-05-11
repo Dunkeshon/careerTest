@@ -5,19 +5,24 @@
     @click="activate"
     ref="cardRef"
   >
-    <img
-      v-if="active || imageAnimating"
+    <NuxtImg
       src="/testImage.png"
       alt="Question Image"
-      class="w-full object-cover rounded-xl mb-4"
-      :class="[imageStateClass]"
-      @transitionend="onImageTransitionEnd"
+      class="question-image w-full object-cover rounded-xl mb-4"
+      :class="active ? 'image-active' : 'image-disabled'"
+      width="430"
+      height="192"
+      format="webp"
+      quality="70"
+      loading="lazy"
+      decoding="async"
     />
     <div class="question-text text-center mb-4 text-lg font-medium no-mx">
       {{ question }}
     </div>
     <div class="flex flex-col items-center w-full">
-      <div class="flex flex-row justify-between items-center w-full max-w-xs mx-auto gap-2">
+      <div class="flex flex-row justify-between items-center w-full max-w-xs mx-auto gap-2"
+           :class="!active ? 'opacity-50 pointer-events-none' : ''">
         <button
           v-for="n in 5"
           :key="n"
@@ -35,7 +40,8 @@
           </svg>
         </button>
       </div>
-      <div class="flex flex-row justify-between w-full max-w-xs mx-auto mt-2">
+      <div class="flex flex-row justify-between w-full max-w-xs mx-auto mt-2"
+           :class="!active ? 'opacity-50' : ''">
         <span class="text-xs text-purple-500 font-semibold">DISLIKE</span>
         <span class="text-xs text-green-500 font-semibold ml-auto">ENJOY</span>
       </div>
@@ -45,6 +51,7 @@
 
 <script setup>
 import { ref, watch, nextTick, computed } from 'vue'
+import { NuxtImg } from '#components'
 const props = defineProps({
   question: String,
   value: Number,
@@ -53,8 +60,6 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:value', 'activate'])
 const cardRef = ref(null)
-const imageAnimating = ref(false)
-const imageState = ref('expanded')
 
 function select(n) {
   if (props.active) emit('update:value', n)
@@ -63,32 +68,11 @@ function activate() {
   if (!props.active) emit('activate', props.index)
 }
 
-// Scroll into view when activated
-watch(() => props.active, (newVal, oldVal) => {
+watch(() => props.active, (newVal) => {
   if (newVal) {
-    imageState.value = 'expanded'
-    imageAnimating.value = true
     nextTick(() => {
       cardRef.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
     })
-  } else if (oldVal && !newVal) {
-    // Start roll-down animation
-    imageState.value = 'collapsed'
-    imageAnimating.value = true
-  }
-})
-
-function onImageTransitionEnd(e) {
-  if (imageState.value === 'collapsed') {
-    imageAnimating.value = false
-  }
-}
-
-const imageStateClass = computed(() => {
-  if (imageState.value === 'expanded') {
-    return 'image-expanded'
-  } else {
-    return 'image-collapsed'
   }
 })
 
@@ -115,6 +99,7 @@ function circleFillClass(n) {
   cursor: pointer;
   transition:
     box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    max-width 0.7s cubic-bezier(0.4, 0, 0.2, 1),
     max-height 1s cubic-bezier(0.4, 0, 0.2, 1),
     min-height 1s cubic-bezier(0.4, 0, 0.2, 1),
     height 1s cubic-bezier(0.4, 0, 0.2, 1),
@@ -122,32 +107,35 @@ function circleFillClass(n) {
     opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .active-card {
+  max-width: 430px;
   max-height: 600px;
   padding: 24px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.10);
 }
 .inactive-card {
-  max-height: 160px;
-  min-height: 160px;
-  height: 160px;
+  max-width: 320px;
+  max-height: 200px;
+  min-height: 200px;
+  height: 200px;
   padding: 8px 24px;
   opacity: 0.7;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
 }
-.image-expanded {
+.question-image {
   height: 192px;
-  opacity: 1;
-  transform: translateY(0);
-  transition: height 1s cubic-bezier(0.4, 0, 0.2, 1), opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  object-fit: cover;
+  transition: filter 0.5s, opacity 0.5s;
 }
-.image-collapsed {
-  height: 0;
-  opacity: 0;
-  transform: translateY(60px);
-  margin-bottom: 0 !important;
-  transition: none !important;
+.image-active {
+  filter: none;
+  opacity: 1;
+}
+.image-disabled {
+  filter: grayscale(1) blur(2px) brightness(0.85);
+  opacity: 0.5;
 }
 img {
   display: block;
