@@ -6,57 +6,33 @@
         <div class="h-2 bg-gray-200 rounded-full">
           <div 
             class="h-2 bg-blue-600 rounded-full transition-all duration-300"
-            :style="{ width: `${(currentQuestionIndex / questions.length) * 100}%` }"
+            :style="{ width: `${(activeIndex / questions.length) * 100}%` }"
           ></div>
         </div>
         <p class="text-sm text-gray-600 mt-2">
-          Question {{ currentQuestionIndex + 1 }} of {{ questions.length }}
+          Question {{ activeIndex + 1 }} of {{ questions.length }}
         </p>
       </div>
 
-      <!-- Question Card -->
-      <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
-        <LikertQuestion
-          v-if="questions.length"
-          :question="questions[currentQuestionIndex]"
-          v-model:value="answers[currentQuestionIndex]"
+      <!-- Scrollable List of Questions -->
+      <div>
+        <QuestionCard
+          v-for="(question, idx) in questions"
+          :key="idx"
+          :question="question"
+          :value="answers[idx]"
+          :active="activeIndex === idx"
+          :index="idx"
+          @update:value="onAnswer(idx, $event)"
+          @activate="setActive"
         />
       </div>
 
-      <!-- Navigation Buttons -->
-      <div class="flex justify-between">
+      <!-- Submit Button -->
+      <div v-if="isAllQuestionsAnswered" class="flex justify-center mt-8">
         <button 
-          v-if="currentQuestionIndex > 0"
-          @click="previousQuestion"
-          class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-colors duration-200"
-        >
-          Previous
-        </button>
-        <div v-else class="w-24"></div>
-
-        <button 
-          v-if="currentQuestionIndex < questions.length - 1"
-          @click="nextQuestion"
-          :disabled="!answers[currentQuestionIndex]"
-          :class="[
-            'px-6 py-3 rounded-xl transition-colors duration-200',
-            answers[currentQuestionIndex]
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          ]"
-        >
-          Next
-        </button>
-        <button 
-          v-else
           @click="submitAnswers"
-          :disabled="!isAllQuestionsAnswered"
-          :class="[
-            'px-6 py-3 rounded-xl transition-colors duration-200',
-            isAllQuestionsAnswered
-              ? 'bg-green-600 text-white hover:bg-green-700'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          ]"
+          class="px-8 py-4 bg-green-600 text-white rounded-xl text-lg font-semibold shadow-lg hover:bg-green-700 transition-colors duration-200"
         >
           Submit
         </button>
@@ -66,12 +42,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import LikertQuestion from '~/components/LikertQuestion.vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
+import QuestionCard from '~/components/QuestionCard.vue'
 
 const questions = ref([])
 const answers = ref([])
-const currentQuestionIndex = ref(0)
+const activeIndex = ref(0)
 const isLoading = ref(true)
 
 // Load questions from CSV
@@ -88,19 +64,18 @@ onMounted(async () => {
   }
 })
 
-const selectAnswer = (rating) => {
-  answers.value[currentQuestionIndex.value] = rating
+function setActive(idx) {
+  activeIndex.value = idx
 }
 
-const nextQuestion = () => {
-  if (currentQuestionIndex.value < questions.value.length - 1) {
-    currentQuestionIndex.value++
-  }
-}
-
-const previousQuestion = () => {
-  if (currentQuestionIndex.value > 0) {
-    currentQuestionIndex.value--
+function onAnswer(idx, rating) {
+  answers.value[idx] = rating
+  // Animate to next unanswered question
+  const nextIdx = answers.value.findIndex((a, i) => a === null && i > idx)
+  if (nextIdx !== -1) {
+    setTimeout(() => setActive(nextIdx), 400)
+  } else if (idx < questions.value.length - 1) {
+    setTimeout(() => setActive(idx + 1), 400)
   }
 }
 
