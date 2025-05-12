@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white px-4 py-8">
     <div class="max-w-md mx-auto">
       <!-- Progress Bar -->
-      <div class="mb-6 sticky top-0 z-20 bg-gradient-to-b from-blue-50 to-white pt-4 pb-2 w-full max-w-md mx-auto shadow-md">
+      <div class="mb-6 ">
         <div class="h-2 bg-gray-200 rounded-full">
           <div 
             class="h-2 bg-blue-600 rounded-full transition-all duration-300"
