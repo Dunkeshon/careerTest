@@ -2,15 +2,25 @@
   <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white px-4 py-8">
     <div class="max-w-md mx-auto">
       <!-- Progress Bar -->
-      <div class="mb-6 ">
+      <div class="mb-6">
         <div class="h-2 bg-gray-200 rounded-full">
           <div 
+            v-if="!isLoading"
             class="h-2 bg-blue-600 rounded-full transition-all duration-300"
             :style="{ width: `${(answeredCount / questions.length) * 100}%` }"
           ></div>
+          <div 
+            v-else
+            class="h-2 bg-gray-200 rounded-full animate-pulse"
+          ></div>
         </div>
         <p class="text-sm text-gray-600 mt-2">
-          Question {{ answeredCount + 1 }} of {{ questions.length }}
+          <template v-if="isLoading">
+            <span class="animate-pulse">Loading questions...</span>
+          </template>
+          <template v-else>
+            Question {{ answeredCount + 1 }} of {{ questions.length }}
+          </template>
         </p>
       </div>
 
@@ -18,35 +28,58 @@
       <div
         ref="questionListRef"
       >
-        <QuestionCard
-          v-for="(question, idx) in pagedQuestions"
-          :key="pageStart + idx"
-          :question="question"
-          :value="answers[pageStart + idx]"
-          :active="activeIndex === (pageStart + idx)"
-          :index="pageStart + idx"
-          :data-question-index="pageStart + idx"
-          @update:value="onAnswer(pageStart + idx, $event)"
-          @activate="setActive"
-        />
-        <!-- Next Button as Card -->
-        <div
-          v-if="!isLastPage"
-          class="question-card inactive-card flex items-center justify-center mb-8 mx-auto"
-          style="max-width: 320px; min-height: 200px; height: 200px;"
-          ref="nextButtonRef"
-        >
-          <div class="flex items-center justify-center w-full h-full">
-            <button
-              @click="handleNextClick"
-              aria-disabled="!isPageComplete"
-              class="px-8 py-3 text-lg font-semibold rounded-xl transition-colors duration-200 shadow-md w-[120px] h-[48px]"
-              :class="isPageComplete ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
-            >
-              Next
-            </button>
+        <template v-if="isLoading">
+          <div class="question-card bg-white rounded-2xl shadow-lg mb-8 mx-auto p-6">
+            <div class="animate-pulse">
+              <!-- Image placeholder -->
+              <div class="h-[350px] bg-gray-200 rounded-xl mb-4"></div>
+              <!-- Question text placeholder -->
+              <div class="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-8"></div>
+              <!-- Answer buttons placeholder -->
+              <div class="flex justify-between items-center w-full max-w-xs mx-auto gap-2">
+                <div v-for="n in 5" :key="n" class="w-16 h-16 flex items-center justify-center">
+                  <div class="w-12 h-12 bg-gray-200 rounded-full"></div>
+                </div>
+              </div>
+              <!-- Labels placeholder -->
+              <div class="flex justify-between w-full max-w-xs mx-auto mt-2">
+                <div class="h-4 bg-gray-200 rounded w-20"></div>
+                <div class="h-4 bg-gray-200 rounded w-20"></div>
+              </div>
+            </div>
           </div>
-        </div>
+        </template>
+        <template v-else>
+          <QuestionCard
+            v-for="(question, idx) in pagedQuestions"
+            :key="pageStart + idx"
+            :question="question"
+            :value="answers[pageStart + idx]"
+            :active="activeIndex === (pageStart + idx)"
+            :index="pageStart + idx"
+            :data-question-index="pageStart + idx"
+            @update:value="onAnswer(pageStart + idx, $event)"
+            @activate="setActive"
+          />
+          <!-- Next Button as Card -->
+          <div
+            v-if="!isLastPage"
+            class="question-card inactive-card flex items-center justify-center mb-8 mx-auto"
+            style="max-width: 320px; min-height: 200px; height: 200px;"
+            ref="nextButtonRef"
+          >
+            <div class="flex items-center justify-center w-full h-full">
+              <button
+                @click="handleNextClick"
+                aria-disabled="!isPageComplete"
+                class="px-8 py-3 text-lg font-semibold rounded-xl transition-colors duration-200 shadow-md w-[120px] h-[48px]"
+                :class="isPageComplete ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </template>
       </div>
 
       <!-- Submit Button -->
