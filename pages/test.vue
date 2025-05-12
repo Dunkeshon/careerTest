@@ -40,9 +40,8 @@
             <button
               @click="handleNextClick"
               aria-disabled="!isPageComplete"
-              class="px-8 py-3 text-lg font-semibold rounded-xl transition-colors duration-200 shadow-md"
-              :class="isPageComplete ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'"
-              style="min-width: 120px; min-height: 48px;"
+              class="px-8 py-3 text-lg font-semibold rounded-xl transition-colors duration-200 shadow-md w-[120px] h-[48px]"
+              :class="isPageComplete ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
             >
               Next
             </button>
@@ -51,14 +50,23 @@
       </div>
 
       <!-- Submit Button -->
-      <div v-if="isLastPage && isPageComplete" class="flex justify-center mt-8">
-        <button 
-          @click="submitAnswers"
-          :disabled="!isAllQuestionsAnswered"
-          class="px-8 py-4 bg-green-600 text-white rounded-xl text-lg font-semibold shadow-lg hover:bg-green-700 transition-colors duration-200"
+      <div v-if="isLastPage" class="flex justify-center mt-8">
+        <div
+          class="question-card inactive-card flex items-center justify-center mb-8 mx-auto"
+          style="max-width: 320px; min-height: 200px; height: 200px;"
+          ref="submitButtonRef"
         >
-          Submit
-        </button>
+          <div class="flex items-center justify-center w-full h-full">
+            <button 
+              @click="submitAnswers"
+              :disabled="!isAllQuestionsAnswered"
+              class="px-8 py-3 text-lg font-semibold rounded-xl transition-colors duration-200 shadow-md w-[120px] h-[48px]"
+              :class="isAllQuestionsAnswered ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -76,6 +84,8 @@ const page = ref(0)
 const isLoading = ref(true)
 const nextButtonRef = ref(null)
 const questionListRef = ref(null)
+const submitButtonRef = ref(null)
+const progressBarRef = ref(null)
 
 onMounted(async () => {
   try {
@@ -108,12 +118,21 @@ function onAnswer(idx, rating) {
   } else if (localIdx < pagedQuestions.value.length - 1) {
     setTimeout(() => setActive(pageStart.value + localIdx + 1), 400)
   } else {
-    // If last on page, scroll to next button
-    setTimeout(() => {
-      nextTick(() => {
-        nextButtonRef.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      })
-    }, 400)
+    // If last question on last page is answered, scroll to submit button
+    if (isLastPage.value && isAllQuestionsAnswered.value) {
+      setTimeout(() => {
+        nextTick(() => {
+          submitButtonRef.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        })
+      }, 400)
+    } else {
+      // Otherwise scroll to next button
+      setTimeout(() => {
+        nextTick(() => {
+          nextButtonRef.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        })
+      }, 400)
+    }
   }
 }
 
@@ -142,7 +161,7 @@ function nextPage() {
   page.value++
   setActive(pageStart.value)
   nextTick(() => {
-    questionListRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   })
 }
 

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="question-card transition-all duration-1000 overflow-hidden bg-white rounded-2xl shadow-lg mb-8 mx-auto"
+    class="question-card transition-all duration-500 overflow-hidden bg-white rounded-2xl shadow-lg mb-8 mx-auto"
     :class="active ? 'active-card' : 'inactive-card'"
     @click="activate"
     ref="cardRef"
@@ -98,36 +98,24 @@ function circleFillClass(n) {
   max-width: 430px;
   cursor: pointer;
   transition:
-    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    max-width 0.7s cubic-bezier(0.4, 0, 0.2, 1),
-    max-height 1s cubic-bezier(0.4, 0, 0.2, 1),
-    min-height 1s cubic-bezier(0.4, 0, 0.2, 1),
-    height 1s cubic-bezier(0.4, 0, 0.2, 1),
-    padding 1s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .active-card {
   max-width: 430px;
-  max-height: 600px;
   padding: 24px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.10);
 }
 .inactive-card {
-  max-width: 320px;
-  max-height: 200px;
-  min-height: 200px;
-  height: 200px;
-  padding: 8px 24px;
+  max-width: 430px;
+  padding: 24px;
   opacity: 0.7;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
 }
 .question-image {
   height: 192px;
   width: 100%;
   object-fit: cover;
-  transition: filter 0.5s, opacity 0.5s;
+  transition: filter 0.3s, opacity 0.3s;
 }
 .image-active {
   filter: none;
