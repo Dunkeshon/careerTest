@@ -1,6 +1,6 @@
 <template>
   <div
-    class="question-card transition-all duration-500 overflow-hidden bg-white rounded-2xl shadow-lg mb-8 mx-auto"
+    class="question-card transition-all duration-300 overflow-hidden bg-white rounded-2xl shadow-lg mb-8 mx-auto"
     :class="active ? 'active-card' : 'inactive-card'"
     @click="activate"
     ref="cardRef"
@@ -98,8 +98,8 @@ function circleFillClass(n) {
   max-width: 430px;
   cursor: pointer;
   transition:
-    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .active-card {
   max-width: 430px;
@@ -115,7 +115,7 @@ function circleFillClass(n) {
   height: 192px;
   width: 100%;
   object-fit: cover;
-  transition: filter 0.3s, opacity 0.3s;
+  transition: filter 0.2s, opacity 0.2s;
 }
 .image-active {
   filter: none;

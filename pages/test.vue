@@ -87,11 +87,21 @@ const questionListRef = ref(null)
 const submitButtonRef = ref(null)
 const progressBarRef = ref(null)
 
+// Fisher-Yates shuffle algorithm
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
 onMounted(async () => {
   try {
     const response = await fetch('/only questions.csv')
     const text = await response.text()
-    questions.value = text.split('\n').filter(q => q.trim())
+    const questionsList = text.split('\n').filter(q => q.trim())
+    questions.value = shuffleArray(questionsList)
     answers.value = new Array(questions.value.length).fill(null)
     isLoading.value = false
   } catch (error) {
