@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, onUnmounted } from 'vue'
 import QuestionCard from '~/components/QuestionCard.vue'
 
 const PAGE_SIZE = 8
@@ -96,6 +96,24 @@ function shuffleArray(array) {
   return array;
 }
 
+// Function to generate random answer (1-5)
+function getRandomAnswer() {
+  return Math.floor(Math.random() * 5) + 1
+}
+
+// Function to answer first 41 questions randomly
+function answerFirst41Randomly() {
+  for (let i = 0; i < 41; i++) {
+    answers.value[i] = getRandomAnswer()
+  }
+  // Go to last page
+  page.value = Math.floor((questions.value.length - 1) / PAGE_SIZE)
+  setActive(pageStart.value)
+  nextTick(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  })
+}
+
 onMounted(async () => {
   try {
     const response = await fetch('/only questions.csv')
@@ -104,9 +122,25 @@ onMounted(async () => {
     questions.value = shuffleArray(questionsList)
     answers.value = new Array(questions.value.length).fill(null)
     isLoading.value = false
+
+    // Add keyboard event listener
+    window.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 'q') {
+        answerFirst41Randomly()
+      }
+    })
   } catch (error) {
     console.error('Error loading questions:', error)
   }
+})
+
+// Clean up event listener
+onUnmounted(() => {
+  window.removeEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'q') {
+      answerFirst41Randomly()
+    }
+  })
 })
 
 const pageStart = computed(() => page.value * PAGE_SIZE)
@@ -124,9 +158,9 @@ function onAnswer(idx, rating) {
   const localIdx = idx - pageStart.value
   const nextIdx = answers.value.findIndex((a, i) => a === null && i >= pageStart.value && i < pageEnd.value && i > idx)
   if (nextIdx !== -1) {
-    setTimeout(() => setActive(nextIdx), 400)
+    setTimeout(() => setActive(nextIdx), 200)
   } else if (localIdx < pagedQuestions.value.length - 1) {
-    setTimeout(() => setActive(pageStart.value + localIdx + 1), 400)
+    setTimeout(() => setActive(pageStart.value + localIdx + 1), 200)
   } else {
     // If last question on last page is answered, scroll to submit button
     if (isLastPage.value && isAllQuestionsAnswered.value) {
@@ -134,14 +168,14 @@ function onAnswer(idx, rating) {
         nextTick(() => {
           submitButtonRef.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
         })
-      }, 400)
+      }, 200)
     } else {
       // Otherwise scroll to next button
       setTimeout(() => {
         nextTick(() => {
           nextButtonRef.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
         })
-      }, 400)
+      }, 200)
     }
   }
 }

@@ -11,7 +11,7 @@
       class="question-image w-full object-cover rounded-xl mb-4"
       :class="active ? 'image-active' : 'image-disabled'"
       width="430"
-      height="192"
+      height="350"
       format="webp"
       quality="70"
       loading="lazy"
@@ -21,24 +21,27 @@
       {{ question }}
     </div>
     <div class="flex flex-col items-center w-full">
-      <div class="flex flex-row justify-between items-center w-full max-w-xs mx-auto gap-2"
-           :class="!active ? 'opacity-50 pointer-events-none' : ''">
-        <button
+      <div class="flex flex-row justify-between items-center w-full max-w-xs mx-auto gap-2">
+        <div
           v-for="n in 5"
           :key="n"
-          :class="[
-            'flex items-center justify-center border-2 transition focus:outline-none',
-            circleSizeClass(n),
-            circleOutlineClass(n, value === n),
-            value === n ? circleFillClass(n) : 'bg-white',
-            !active ? 'pointer-events-none opacity-50' : ''
-          ]"
+          class="w-16 h-16 flex items-center justify-center cursor-pointer"
           @click.stop="select(n)"
         >
-          <svg v-if="value === n" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </button>
+          <button
+            :class="[
+              'flex items-center justify-center border-2 transition focus:outline-none',
+              circleSizeClass(n),
+              circleOutlineClass(n, value === n),
+              value === n ? circleFillClass(n) : 'bg-white',
+              !active ? 'pointer-events-none opacity-50' : ''
+            ]"
+          >
+            <svg v-if="value === n" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </button>
+        </div>
       </div>
       <div class="flex flex-row justify-between w-full max-w-xs mx-auto mt-2"
            :class="!active ? 'opacity-50' : ''">
@@ -112,7 +115,7 @@ function circleFillClass(n) {
   opacity: 0.7;
 }
 .question-image {
-  height: 192px;
+  height: 350px;
   width: 100%;
   object-fit: cover;
   transition: filter 0.2s, opacity 0.2s;
