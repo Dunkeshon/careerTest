@@ -1,0 +1,49 @@
+#,Question (*when given maximum points (5/5)),R,I,A,S,E,C
+1,Maintain employee records,0,0,0,0,0,4
+2,Handle customers' bank transactions,0,0,0,0,0,4
+3,Assemble products in a factory,4,0,0,0,0,0
+4,Compute and record statistical and other numerical data,0,0,0,0,0,4
+5,Lay brick or tile,4,0,0,0,0,0
+6,Teach an individual an exercise routine,0,0,0,4,0,0
+7,Manage a clothing store,0,0,0,0,4,0
+8,Design sets for plays,0,0,4,0,0,0
+9,Study animal behavior,0,4,0,0,0,0
+10,Study whales and other types of marine life,0,4,0,0,0,0
+11,Help elderly people with their daily activities,0,0,0,4,0,0
+12,Work on an offshore oil-drilling rig,4,0,0,0,0,0
+13,Fix a broken faucet,4,0,0,0,0,0
+14,Generate the monthly payroll checks for an office,0,0,0,0,0,4
+15,Sell merchandise at a department store,0,0,0,0,4,0
+16,Test the quality of parts before shipment,4,0,0,0,0,0
+17,Manage a department within a large company,0,0,0,0,4,0
+18,Develop a new medical treatment or procedure,0,4,0,0,0,0
+19,Do volunteer work at a non-profit organization,0,0,0,4,0,0
+20,Make a map of the bottom of an ocean,0,4,0,0,0,0
+21,Sell restaurant franchises to individuals,0,0,0,0,4,0
+22,Install flooring in houses,4,0,0,0,0,0
+23,Write books or plays,0,0,4,0,0,0
+24,Conduct biological research,0,4,0,0,0,0
+25,Teach children how to read,0,0,0,4,0,0
+26,Inventory supplies using a hand-held computer,0,0,0,0,0,4
+27,Work in a biology lab,0,4,0,0,0,0
+28,Operate a grinding machine in a factory,4,0,0,0,0,0
+29,Design artwork for magazines,0,0,4,0,0,0
+30,Direct a play,0,0,4,0,0,0
+31,Play a musical instrument,0,0,4,0,0,0
+32,Keep shipping and receiving records,0,0,0,0,0,4
+33,Write a song,0,0,4,0,0,0
+34,Sell houses,0,0,0,0,4,0
+35,Do research on plants or animals,0,4,0,0,0,0
+36,Supervise the activities of children at a camp,0,0,0,4,0,0
+37,Run a toy store,0,0,0,0,4,0
+38,Help people with family-related problems,0,0,0,4,0,0
+39,Study the structure of the human body,0,4,0,0,0,0
+40,Give career guidance to people,0,0,0,4,0,0
+41,Conduct a musical choir,0,0,4,0,0,0
+42,Help people who have problems with drugs or alcohol,0,0,0,4,0,0
+43,Assemble electronic parts,4,0,0,0,0,0
+44,Manage the operations of a hotel,0,0,0,0,4,0
+45,Perform stunts for a movie or television show,0,0,4,0,0,0
+46,Operate a calculator,0,0,0,0,0,4
+47,Operate a beauty salon or barber shop,0,0,0,0,4,0
+48,Use a computer program to generate customer bills,0,0,0,0,0,4

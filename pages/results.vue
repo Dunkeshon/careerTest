@@ -1,27 +1,35 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white px-4 py-8">
-    <div class="max-w-md mx-auto">
-      <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
-        <h1 class="text-2xl font-bold text-gray-800 mb-4">Your Results</h1>
-        <p class="text-gray-600 mb-6">
-          Based on your answers, we're analyzing your preferences to suggest the best IT career paths for you.
+  <div class="container mx-auto px-4 py-8">
+    <div v-if="results" class="max-w-2xl mx-auto">
+      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h1 class="text-3xl font-bold text-center mb-4">Congratulations!</h1>
+        <p class="text-lg text-center mb-6">
+          You've completed the career assessment test. Based on your answers, your highest scoring category is:
         </p>
-        
-        <!-- Placeholder for results -->
-        <div class="animate-pulse">
-          <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-          <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-          <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+        <div class="bg-blue-400 p-8 rounded-xl mb-6 flex flex-col items-center shadow-lg animate-pop">
+          <h2 class="text-3xl font-extrabold text-white mb-2 text-center drop-shadow">{{ getCategoryName(results.highestCategory) }}</h2>
+          <p class="text-lg text-white text-center mb-2">{{ getCategoryDescription(results.highestCategory) }}</p>
         </div>
+        <p class="text-center text-gray-700 font-normal text-lg mb-4">This is where your strengths shine the most!</p>
+        <div class="flex justify-center mt-4">
+          <button @click="retakeTest" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow transition">Retake Test</button>
+        </div>
+      </div>
 
-        <!-- Back to Start Button -->
-        <div class="mt-8">
-          <button 
-            @click="goHome"
-            class="w-full bg-blue-600 text-white py-4 px-6 rounded-xl text-lg font-semibold shadow-lg hover:bg-blue-700 transition-colors duration-200"
-          >
-            Start Over
-          </button>
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-bold mb-4">Your Scores</h2>
+        <div class="space-y-4">
+          <div v-for="([category, score], idx) in sortedScores" :key="category" 
+               class="flex items-center justify-between p-3 rounded-lg"
+               :class="category === results.highestCategory ? 'bg-blue-50 border-2 border-blue-400' : 'bg-gray-50'">
+            <div>
+              <span class="font-semibold">{{ getCategoryName(category) }}</span>
+              <p class="text-sm text-gray-600">{{ getCategoryDescription(category) }}</p>
+            </div>
+            <span class="text-xl font-bold" :class="category === results.highestCategory ? 'text-blue-600' : 'text-gray-700'">
+              {{ score }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -29,7 +37,67 @@
 </template>
 
 <script setup>
-const goHome = () => {
-  navigateTo('/')
+import { ref, onMounted } from 'vue'
+const route = useRoute()
+const results = ref(null)
+const sortedScores = ref([])
+
+// Category descriptions
+const categoryInfo = {
+  R: {
+    name: 'Realistic',
+    description: 'Practical, physical, hands-on, mechanical'
+  },
+  I: {
+    name: 'Investigative',
+    description: 'Analytical, intellectual, scientific, explorative'
+  },
+  A: {
+    name: 'Artistic',
+    description: 'Creative, original, independent, chaotic'
+  },
+  S: {
+    name: 'Social',
+    description: 'Helpful, cooperative, supportive, healing'
+  },
+  E: {
+    name: 'Enterprising',
+    description: 'Persuasive, leadership, managing, competitive'
+  },
+  C: {
+    name: 'Conventional',
+    description: 'Detail-oriented, organized, clerical'
+  }
 }
-</script> 
+
+const getCategoryName = (category) => categoryInfo[category].name
+const getCategoryDescription = (category) => categoryInfo[category].description
+
+const retakeTest = () => {
+  navigateTo('/test')
+}
+
+onMounted(() => {
+  // Get results from route query params
+  if (route.query.results) {
+    try {
+      results.value = JSON.parse(decodeURIComponent(route.query.results))
+      // Sort scores descending
+      sortedScores.value = Object.entries(results.value.scores).sort((a, b) => b[1] - a[1])
+    } catch (e) {
+      console.error('Error parsing results:', e)
+    }
+  }
+})
+</script>
+
+<style scoped>
+.animate-pop {
+  animation: pop-in 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+}
+@keyframes pop-in {
+  0% { transform: scale(0.7); opacity: 0; }
+  80% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+</style> 

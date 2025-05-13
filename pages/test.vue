@@ -147,6 +147,21 @@ function answerFirst41Randomly() {
   })
 }
 
+// Function to score all unanswered questions with minimum score
+function scoreUnansweredWithMinimum() {
+  for (let i = 0; i < answers.value.length; i++) {
+    if (answers.value[i] === null) {
+      answers.value[i] = 1 // Minimum score
+    }
+  }
+  // Go to last page
+  page.value = Math.floor((questions.value.length - 1) / PAGE_SIZE)
+  setActive(pageStart.value)
+  nextTick(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  })
+}
+
 onMounted(async () => {
   try {
     const response = await fetch('/only questions.csv')
@@ -160,6 +175,8 @@ onMounted(async () => {
     window.addEventListener('keydown', (e) => {
       if (e.key.toLowerCase() === 'q') {
         answerFirst41Randomly()
+      } else if (e.key === '0') {
+        scoreUnansweredWithMinimum()
       }
     })
   } catch (error) {
@@ -172,6 +189,8 @@ onUnmounted(() => {
   window.removeEventListener('keydown', (e) => {
     if (e.key.toLowerCase() === 'q') {
       answerFirst41Randomly()
+    } else if (e.key === '0') {
+      scoreUnansweredWithMinimum()
     }
   })
 })
@@ -262,18 +281,30 @@ function handleNextClick() {
 
 const submitAnswers = async () => {
   try {
+    // Format answers as array of { questionId, score }
+    const formattedAnswers = answers.value.map((score, index) => ({
+      questionId: index + 1,
+      score: score
+    }))
+
     const response = await fetch('/api/submit-answers', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        answers: answers.value
+        answers: formattedAnswers
       })
     })
     const results = await response.json()
     if (results.success) {
-      navigateTo('/results')
+      // Pass results to the results page via query params
+      navigateTo({
+        path: '/results',
+        query: {
+          results: encodeURIComponent(JSON.stringify(results))
+        }
+      })
     }
   } catch (error) {
     console.error('Error submitting answers:', error)
