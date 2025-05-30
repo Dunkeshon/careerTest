@@ -7,8 +7,14 @@
           You've completed the career assessment test. Based on your answers, your highest scoring category is:
         </p>
         <div class="bg-blue-400 p-8 rounded-xl mb-6 flex flex-col items-center shadow-lg animate-pop">
-          <h2 class="text-3xl font-extrabold text-white mb-2 text-center drop-shadow">{{ getCategoryName(results.highestCategory) }}</h2>
-          <p class="text-lg text-white text-center mb-2">{{ getCategoryDescription(results.highestCategory) }}</p>
+          <div v-for="category in topCategories" :key="category" class="mb-2 last:mb-0">
+            <h2 class="text-3xl font-extrabold text-white text-center drop-shadow">
+              {{ getCategoryName(category) }}
+            </h2>
+            <p class="text-lg text-white text-center mb-2">
+              {{ getCategoryDescription(category) }}
+            </p>
+          </div>
         </div>
         <p class="text-center text-gray-700 font-normal text-lg mb-4">This is where your strengths shine the most!</p>
         <div class="flex justify-center mt-4">
@@ -21,12 +27,12 @@
         <div class="space-y-4">
           <div v-for="([category, score], idx) in sortedScores" :key="category" 
                class="flex items-center justify-between p-3 rounded-lg"
-               :class="category === results.highestCategory ? 'bg-blue-50 border-2 border-blue-400' : 'bg-gray-50'">
+               :class="topCategories.includes(category) ? 'bg-blue-50 border-2 border-blue-400' : 'bg-gray-50'">
             <div>
               <span class="font-semibold">{{ getCategoryName(category) }}</span>
               <p class="text-sm text-gray-600">{{ getCategoryDescription(category) }}</p>
             </div>
-            <span class="text-xl font-bold" :class="category === results.highestCategory ? 'text-blue-600' : 'text-gray-700'">
+            <span class="text-xl font-bold" :class="topCategories.includes(category) ? 'text-blue-600' : 'text-gray-700'">
               {{ score }}
             </span>
           </div>
@@ -41,6 +47,7 @@ import { ref, onMounted } from 'vue'
 const route = useRoute()
 const results = ref(null)
 const sortedScores = ref([])
+const topCategories = ref([])
 
 // Category descriptions
 const categoryInfo = {
@@ -84,6 +91,10 @@ onMounted(() => {
       results.value = JSON.parse(decodeURIComponent(route.query.results))
       // Sort scores descending
       sortedScores.value = Object.entries(results.value.scores).sort((a, b) => b[1] - a[1])
+      // Find the highest score
+      const maxScore = sortedScores.value[0][1]
+      // Find all categories with the highest score
+      topCategories.value = sortedScores.value.filter(([cat, score]) => score === maxScore).map(([cat]) => cat)
     } catch (e) {
       console.error('Error parsing results:', e)
     }
