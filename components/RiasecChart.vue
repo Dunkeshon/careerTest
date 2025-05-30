@@ -7,6 +7,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import Chart from 'chart.js/auto'
+import csAreasRaw from '~/server/cs_areas.csv?raw'
 
 const props = defineProps({
   scores: {
@@ -27,6 +28,18 @@ const riasecPoints = [
   { x: 3, y: 4, label: 'E' },
   { x: 3, y: 8, label: 'C' }
 ]
+
+// Parse CS Areas CSV
+function parseCSAreas(csv) {
+  const lines = csv.trim().split('\n')
+  const result = []
+  for (let i = 1; i < lines.length; i++) {
+    const [name, x, y] = lines[i].split(',')
+    result.push({ name: name.trim(), x: Number(x), y: Number(y) })
+  }
+  return result
+}
+const csAreas = parseCSAreas(csAreasRaw)
 
 // Convert RIASEC score (0-32) to plot coordinates (1-11)
 const scaleScore = (score, category) => {
@@ -63,18 +76,6 @@ const createChart = () => {
     data: {
       datasets: [
         {
-          label: 'RIASEC Reference Points',
-          data: riasecPoints,
-          backgroundColor: 'rgba(186, 104, 200, 0.7)', // purple
-          pointRadius: 8,
-          pointHoverRadius: 12,
-          pointStyle: 'circle',
-          borderColor: '#ab47bc',
-          borderWidth: 2,
-          showLine: false,
-          order: 1
-        },
-        {
           label: 'Your Results',
           data: userPoints,
           backgroundColor: 'rgba(255, 64, 129, 0.8)', // pink
@@ -97,6 +98,18 @@ const createChart = () => {
           fill: true,
           tension: 0,
           order: 0
+        },
+        {
+          label: 'CS Areas',
+          data: csAreas,
+          backgroundColor: 'rgba(33, 150, 243, 0.8)', // blue
+          pointRadius: 7,
+          pointHoverRadius: 11,
+          pointStyle: 'rectRounded',
+          borderColor: '#1976d2',
+          borderWidth: 2,
+          showLine: false,
+          order: 3
         }
       ]
     },
@@ -108,8 +121,8 @@ const createChart = () => {
       },
       scales: {
         x: {
-          min: 1,
-          max: 11,
+          min: 0.5,
+          max: 11.5,
           grid: {
             color: 'rgba(186, 104, 200, 0.15)',
             lineWidth: 1
@@ -123,8 +136,8 @@ const createChart = () => {
           position: 'center',
         },
         y: {
-          min: 1,
-          max: 11,
+          min: 0.5,
+          max: 11.5,
           grid: {
             color: 'rgba(186, 104, 200, 0.15)',
             lineWidth: 1
@@ -152,6 +165,10 @@ const createChart = () => {
           usePointStyle: true,
           callbacks: {
             label: function(context) {
+              const datasetLabel = context.dataset.label
+              if (datasetLabel === 'CS Areas') {
+                return context.raw.name
+              }
               const point = context.raw
               return `${point.label}: (${point.x.toFixed(1)}, ${point.y.toFixed(1)})`
             }
@@ -162,7 +179,8 @@ const createChart = () => {
           titleColor: '#d81b60',
           bodyColor: '#333',
           borderColor: '#d81b60',
-          borderWidth: 1,
+          borderWidth: 2,
+          z: 9999,
           caretSize: 8,
           caretPadding: 8,
           padding: 12
@@ -182,7 +200,7 @@ const createChart = () => {
     },
     plugins: [{
       id: 'centerAxes',
-      afterDraw: (chart) => {
+      beforeDraw: (chart) => {
         const { ctx, chartArea, scales } = chart
         if (!chartArea) return
         // Draw vertical axis (people-things)
