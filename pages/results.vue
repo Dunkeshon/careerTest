@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto px-4 py-8">
     <div v-if="results" class="max-w-2xl mx-auto">
-      <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <div class=" mb-6">
         <h1 class="text-3xl font-bold text-center mb-4">Congratulations!</h1>
         <p class="text-lg text-center mb-6">
           You've completed the career assessment test. Based on your answers, your highest scoring category is:
@@ -22,7 +22,7 @@
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow-lg p-6">
+      <div class="">
         <h2 class="text-2xl font-bold mb-4">Your Scores</h2>
         <div class="space-y-4">
           <div v-for="([category, score], idx) in sortedScores" :key="category" 
@@ -38,12 +38,18 @@
           </div>
         </div>
       </div>
+
+      <div class=" mt-6">
+        <h2 class="text-2xl font-bold mb-4">RIASEC Mapping</h2>
+        <RiasecChart :scores="results.scores" />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import RiasecChart from '~/components/RiasecChart.vue'
 const route = useRoute()
 const results = ref(null)
 const sortedScores = ref([])
