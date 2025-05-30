@@ -31,14 +31,12 @@ const riasecPoints = [
 // Convert RIASEC score (0-32) to plot coordinates (1-11)
 const scaleScore = (score, category) => {
   const maxScore = 32
-  const scale = 5 // Maximum distance from center (6,6)
   const center = 6
   const refPoint = riasecPoints.find(p => p.label === category)
   const dx = refPoint.x - center
   const dy = refPoint.y - center
-  const distance = Math.sqrt(dx * dx + dy * dy)
-  const scaledDistance = (score / maxScore) * scale
-  const ratio = distance === 0 ? 0 : scaledDistance / distance
+  // For score 32, should land on refPoint; for 0, at center
+  const ratio = score / maxScore
   const newX = center + dx * ratio
   const newY = center + dy * ratio
   return { x: newX, y: newY }
@@ -116,15 +114,8 @@ const createChart = () => {
             color: 'rgba(186, 104, 200, 0.15)',
             lineWidth: 1
           },
-          title: {
-            display: true,
-            text: 'Ideas',
-            color: '#ab47bc',
-            font: { size: 16, weight: 'bold' }
-          },
           ticks: {
-            color: '#ab47bc',
-            font: { size: 12 }
+            display: false
           },
           axis: 'x',
           offset: false,
@@ -138,15 +129,8 @@ const createChart = () => {
             color: 'rgba(186, 104, 200, 0.15)',
             lineWidth: 1
           },
-          title: {
-            display: true,
-            text: 'Things',
-            color: '#ab47bc',
-            font: { size: 16, weight: 'bold' }
-          },
           ticks: {
-            color: '#ab47bc',
-            font: { size: 12 }
+            display: false
           },
           axis: 'y',
           offset: false,
@@ -215,21 +199,26 @@ const createChart = () => {
         ctx.lineTo(chartArea.right, scales.y.getPixelForValue(6))
         ctx.stroke()
         ctx.restore()
-        // Draw axis labels
+        // Draw axis labels with custom offsets
         ctx.save()
         ctx.font = 'bold 14px sans-serif'
         ctx.fillStyle = '#ab47bc'
-        // Left (People)
+        // Left (People) - higher
         ctx.textAlign = 'right'
-        ctx.fillText('People', chartArea.left + 5, scales.y.getPixelForValue(6) - 8)
-        // Right (Things)
+        ctx.textBaseline = 'bottom'
+        ctx.fillText('People', chartArea.left + 32, scales.y.getPixelForValue(6) - 18)
+        // Right (Things) - higher
         ctx.textAlign = 'left'
-        ctx.fillText('Things', chartArea.right - 5, scales.y.getPixelForValue(6) - 8)
-        // Top (Data)
-        ctx.textAlign = 'center'
-        ctx.fillText('Data', scales.x.getPixelForValue(6), chartArea.top + 18)
-        // Bottom (Ideas)
-        ctx.fillText('Ideas', scales.x.getPixelForValue(6), chartArea.bottom - 5)
+        ctx.textBaseline = 'bottom'
+        ctx.fillText('Things', chartArea.right - 32, scales.y.getPixelForValue(6) - 18)
+        // Top (Data) - offset right, higher
+        ctx.textAlign = 'left'
+        ctx.textBaseline = 'top'
+        ctx.fillText('Data', scales.x.getPixelForValue(6) + 18, chartArea.top + 8)
+        // Bottom (Ideas) - offset right, lower
+        ctx.textAlign = 'left'
+        ctx.textBaseline = 'bottom'
+        ctx.fillText('Ideas', scales.x.getPixelForValue(6) + 18, chartArea.bottom - 8)
         ctx.restore()
       }
     }]
@@ -248,8 +237,9 @@ watch(() => props.scores, () => {
 <style scoped>
 .riasec-plot-container {
   width: 100%;
-  height: 100%;
-  margin: 0;
+  max-width: 400px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
   padding: 0;
   background: none;
   box-shadow: none;
@@ -262,8 +252,6 @@ watch(() => props.scores, () => {
 canvas {
   width: 100% !important;
   height: 100% !important;
-  min-height: 200px;
-  max-height: 400px;
   background: none;
   box-shadow: none;
   border-radius: 0;
@@ -271,12 +259,7 @@ canvas {
 }
 @media (max-width: 600px) {
   .riasec-plot-container {
-    min-height: 180px;
-    max-height: 300px;
-  }
-  canvas {
-    min-height: 120px;
-    max-height: 300px;
+    max-width: 98vw;
   }
 }
 </style> 

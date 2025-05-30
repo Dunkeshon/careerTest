@@ -43,6 +43,10 @@
         <h2 class="text-2xl font-bold mb-4">RIASEC Mapping</h2>
         <RiasecChart :scores="results.scores" />
       </div>
+      <div class=" mt-6">
+        <h2 class="text-2xl font-bold mb-4">RIASEC Radar Chart</h2>
+        <RiasecRadarChart :scores="results.scores" />
+      </div>
     </div>
   </div>
 </template>
@@ -50,6 +54,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import RiasecChart from '~/components/RiasecChart.vue'
+import RiasecRadarChart from '~/components/RiasecRadarChart.vue'
 const route = useRoute()
 const results = ref(null)
 const sortedScores = ref([])
