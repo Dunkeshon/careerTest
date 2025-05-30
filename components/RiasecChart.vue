@@ -76,18 +76,6 @@ const createChart = () => {
     data: {
       datasets: [
         {
-          label: 'Your Results',
-          data: userPoints,
-          backgroundColor: 'rgba(255, 64, 129, 0.8)', // pink
-          pointRadius: 10,
-          pointHoverRadius: 14,
-          pointStyle: 'circle',
-          borderColor: '#d81b60',
-          borderWidth: 2,
-          showLine: false,
-          order: 2
-        },
-        {
           label: 'Your Area',
           data: polygonPoints,
           backgroundColor: 'rgba(255, 64, 129, 0.15)', // pink fill
