@@ -41,28 +41,9 @@
 
       <div class="mt-6">
         <h2 class="text-2xl font-bold mb-4">RIASEC Mapping</h2>
-        <div class="mb-6 bg-white p-4 rounded-lg shadow-md">
-          <h3 class="text-lg font-semibold mb-3">Compare with:</h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div v-for="option in comparisonOptions" :key="option.value" 
-                 class="flex items-center space-x-2">
-              <input 
-                type="radio" 
-                :id="option.value" 
-                :value="option.value" 
-                v-model="selectedComparison" 
-                class="w-4 h-4"
-                :class="option.color"
-              >
-              <label :for="option.value" class="text-sm font-medium">
-                {{ option.label }}
-              </label>
-            </div>
-          </div>
-        </div>
         <RiasecChart 
           :scores="results.scores" 
-          :comparison-mode="selectedComparison"
+          v-model:comparison-mode="selectedComparison"
         />
       </div>
       <div class="mt-6">
@@ -82,45 +63,6 @@ const results = ref(null)
 const sortedScores = ref([])
 const topCategories = ref([])
 const selectedComparison = ref('centroid')
-
-// Add comparison options
-const comparisonOptions = [
-  { 
-    label: 'Centroid (Average)', 
-    value: 'centroid',
-    color: 'text-yellow-500'
-  },
-  { 
-    label: 'Realistic', 
-    value: 'R',
-    color: 'text-red-600'
-  },
-  { 
-    label: 'Investigative', 
-    value: 'I',
-    color: 'text-green-600'
-  },
-  { 
-    label: 'Artistic', 
-    value: 'A',
-    color: 'text-purple-600'
-  },
-  { 
-    label: 'Social', 
-    value: 'S',
-    color: 'text-yellow-600'
-  },
-  { 
-    label: 'Enterprising', 
-    value: 'E',
-    color: 'text-orange-600'
-  },
-  { 
-    label: 'Conventional', 
-    value: 'C',
-    color: 'text-teal-600'
-  }
-]
 
 // Category descriptions
 const categoryInfo = {

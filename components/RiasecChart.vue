@@ -1,9 +1,56 @@
 <template>
   <div class="riasec-plot-container">
     <div class="toggle-btns">
-      <SelectButton v-model="displayMode" :options="displayOptions" optionLabel="label" optionValue="value" aria-labelledby="displaymode" />
+      <div class="custom-toggle">
+        <button 
+          :class="['toggle-btn', { active: displayMode === 'closest' }]"
+          @click="toggleDisplayMode"
+        >
+          Most Suitable
+        </button>
+        <button 
+          :class="['toggle-btn', { active: displayMode === 'all' }]"
+          @click="toggleDisplayMode"
+        >
+          Show all
+        </button>
+      </div>
     </div>
-    <div v-if="displayMode === 'closest'" class="lines-checkbox">
+    <div v-if="displayMode === 'closest'" class="match-mode-btns">
+      <div class="custom-toggle">
+        <button 
+          :class="['toggle-btn', { active: matchMode === 'best' }]"
+          @click="toggleMatchMode"
+        >
+          Best match
+        </button>
+        <button 
+          :class="['toggle-btn', { active: matchMode === 'relevance' }]"
+          @click="toggleMatchMode"
+        >
+          By relevance
+        </button>
+      </div>
+    </div>
+    <div v-if="displayMode === 'closest' && matchMode === 'relevance'" class="comparison-card">
+      <h3 class="comparison-title">Compare with:</h3>
+      <div class="comparison-grid">
+        <div v-for="option in comparisonOptions" :key="option.value" 
+             class="comparison-option">
+          <input 
+            type="radio" 
+            :id="option.value" 
+            :value="option.value" 
+            v-model="selectedComparison" 
+            class="comparison-radio"
+          >
+          <label :for="option.value" class="comparison-label" :style="{ color: option.color }">
+            {{ option.label }}
+          </label>
+        </div>
+      </div>
+    </div>
+    <div v-if="displayMode === 'closest' && matchMode === 'relevance'" class="lines-checkbox">
       <label><input type="checkbox" v-model="showLines" /> Show lines to closest</label>
     </div>
     <div class="plot-wrapper">
@@ -13,9 +60,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import Chart from 'chart.js/auto'
-import SelectButton from 'primevue/selectbutton'
 import csAreasRaw from '~/server/cs_areas.csv?raw'
 
 const props = defineProps({
@@ -29,14 +75,63 @@ const props = defineProps({
   }
 })
 
-const displayOptions = [
-  { label: 'Show closest', value: 'closest' },
-  { label: 'Show all', value: 'all' }
+const emit = defineEmits(['update:comparisonMode'])
+
+// Comparison options for the radio buttons
+const comparisonOptions = [
+  { 
+    label: 'Centroid (Average)', 
+    value: 'centroid',
+    color: '#eab308'
+  },
+  { 
+    label: 'Realistic', 
+    value: 'R',
+    color: '#dc2626'
+  },
+  { 
+    label: 'Investigative', 
+    value: 'I',
+    color: '#16a34a'
+  },
+  { 
+    label: 'Artistic', 
+    value: 'A',
+    color: '#9333ea'
+  },
+  { 
+    label: 'Social', 
+    value: 'S',
+    color: '#ca8a04'
+  },
+  { 
+    label: 'Enterprising', 
+    value: 'E',
+    color: '#ea580c'
+  },
+  { 
+    label: 'Conventional', 
+    value: 'C',
+    color: '#0d9488'
+  }
 ]
+
 const displayMode = ref('closest')
+const matchMode = ref('best')
 const showLines = ref(true)
+const selectedComparison = ref(props.comparisonMode)
 const chartCanvas = ref(null)
 let chart = null
+
+// Watch for changes in selectedComparison and emit to parent
+watch(selectedComparison, (newValue) => {
+  emit('update:comparisonMode', newValue)
+})
+
+// Watch for prop changes
+watch(() => props.comparisonMode, (newValue) => {
+  selectedComparison.value = newValue
+})
 
 // RIASEC reference points (6,6 as origin)
 const riasecPoints = [
@@ -58,6 +153,22 @@ const comparisonColors = {
   E: '#ea580c', // orange-600
   C: '#0d9488'  // teal-600
 }
+
+// Computed property to get the category with highest user score
+const highestScoreCategory = computed(() => {
+  const scores = props.scores || {}
+  let maxScore = -1
+  let maxCategory = 'R'
+  
+  for (const [category, score] of Object.entries(scores)) {
+    if (score > maxScore) {
+      maxScore = score
+      maxCategory = category
+    }
+  }
+  
+  return maxCategory
+})
 
 // Parse CS Areas CSV
 function parseCSAreas(csv) {
@@ -128,15 +239,42 @@ const createChart = () => {
   const centroid = getCentroid(userPoints)
 
   const getComparisonPoint = () => {
-    if (props.comparisonMode === 'centroid') {
-      return centroid
+    // When in "Most Suitable" mode and "Best match" is selected, use the highest score category
+    if (displayMode.value === 'closest' && matchMode.value === 'best') {
+      const bestCategory = highestScoreCategory.value
+      const userPoint = userPoints.find(p => p.label === bestCategory)
+      return userPoint
     }
-    // For RIASEC categories, use the user's actual score point for that category
-    const userPoint = userPoints.find(p => p.label === props.comparisonMode)
-    return userPoint
+    // When in "By relevance" mode, use the original comparison mode logic
+    else if (displayMode.value === 'closest' && matchMode.value === 'relevance') {
+      if (props.comparisonMode === 'centroid') {
+        return centroid
+      }
+      // For RIASEC categories, use the user's actual score point for that category
+      const userPoint = userPoints.find(p => p.label === props.comparisonMode)
+      return userPoint
+    }
+    // Default fallback
+    else {
+      if (props.comparisonMode === 'centroid') {
+        return centroid
+      }
+      const userPoint = userPoints.find(p => p.label === props.comparisonMode)
+      return userPoint
+    }
   }
 
   const comparisonPoint = getComparisonPoint()
+  
+  // Get the appropriate color for the comparison
+  const getComparisonColor = () => {
+    if (displayMode.value === 'closest' && matchMode.value === 'best') {
+      return comparisonColors[highestScoreCategory.value]
+    }
+    return comparisonColors[props.comparisonMode]
+  }
+  
+  const comparisonColor = getComparisonColor()
   
   // Calculate distances from the comparison point
   const csAreasWithDist = csAreas.map(area => {
@@ -161,12 +299,12 @@ const createChart = () => {
     type: 'scatter',
     data: {
       datasets: [
-        ...((displayMode.value === 'closest' && showLines.value) ? linesData.map(line => ({
+        ...((displayMode.value === 'closest' && matchMode.value === 'relevance' && showLines.value) ? linesData.map(line => ({
           label: 'Line to Closest',
           data: line,
           showLine: true,
           fill: false,
-          borderColor: comparisonColors[props.comparisonMode],
+          borderColor: comparisonColor,
           borderWidth: 2,
           pointRadius: 0,
           order: 0,
@@ -201,8 +339,8 @@ const createChart = () => {
         ...(displayMode.value === 'closest' ? [{
           label: 'CS Areas Highlighted',
           data: csAreas.filter(a => closestNames.has(a.name)),
-          backgroundColor: comparisonColors[props.comparisonMode],
-          borderColor: comparisonColors[props.comparisonMode],
+          backgroundColor: comparisonColor,
+          borderColor: comparisonColor,
           borderWidth: 4,
           pointRadius: 12,
           pointHoverRadius: 16,
@@ -269,10 +407,23 @@ const createChart = () => {
               if (datasetLabel === 'CS Areas' || datasetLabel === 'CS Areas Highlighted') {
                 return context.raw.name
               }
-              // Only show coordinates for user area points
+              // Show RIASEC category name and percentage for user area points
               if (datasetLabel === 'Your Area') {
                 const point = context.raw
-                return `${point.label ? point.label + ': ' : ''}(${point.x.toFixed(1)}, ${point.y.toFixed(1)})`
+                if (point.label) {
+                  const score = props.scores[point.label] || 0
+                  const percentage = Math.round((score / 32) * 100)
+                  const categoryNames = {
+                    R: 'Realistic',
+                    I: 'Investigative', 
+                    A: 'Artistic',
+                    S: 'Social',
+                    E: 'Enterprising',
+                    C: 'Conventional'
+                  }
+                  return `${categoryNames[point.label]}: ${percentage}%`
+                }
+                return ''
               }
               // No tooltip for lines or centroid
               return ''
@@ -352,7 +503,7 @@ onMounted(() => {
   createChart()
 })
 
-watch([() => props.scores, displayMode, showLines], () => {
+watch([() => props.scores, displayMode, showLines, matchMode, selectedComparison], () => {
   createChart()
 }, { deep: true })
 
@@ -360,6 +511,15 @@ watch([() => props.scores, displayMode, showLines], () => {
 watch(() => props.comparisonMode, () => {
   createChart()
 })
+
+// Toggle functions for better control
+const toggleDisplayMode = () => {
+  displayMode.value = displayMode.value === 'closest' ? 'all' : 'closest'
+}
+
+const toggleMatchMode = () => {
+  matchMode.value = matchMode.value === 'best' ? 'relevance' : 'best'
+}
 </script>
 
 <style scoped>
@@ -387,12 +547,77 @@ canvas {
   box-shadow: none;
   border-radius: 0;
 }
-.toggle-btns {
+.toggle-btns, .match-mode-btns {
   display: flex;
   justify-content: center;
   margin-bottom: 0.5rem;
   flex-direction: row;
   gap: 0.5rem;
+}
+.custom-toggle {
+  display: flex;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+.toggle-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+.toggle-btn:hover {
+  color: #374151;
+  background: rgba(255, 255, 255, 0.5);
+}
+.toggle-btn.active {
+  background: #3b82f6;
+  color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.comparison-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(171, 71, 188, 0.2);
+  width: 100%;
+}
+.comparison-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ab47bc;
+  margin-bottom: 0.75rem;
+  text-align: left;
+}
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+.comparison-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.comparison-radio {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #ab47bc;
+}
+.comparison-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
 }
 .lines-checkbox {
   margin-bottom: 0.5rem;
@@ -402,6 +627,15 @@ canvas {
 @media (max-width: 600px) {
   .riasec-plot-container {
     max-width: 98vw;
+  }
+  .comparison-grid {
+    grid-template-columns: 1fr;
+    gap: 0.375rem;
+  }
+}
+@media (min-width: 600px) {
+  .comparison-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 </style> 
