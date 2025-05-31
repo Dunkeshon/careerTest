@@ -1,0 +1,88 @@
+
+Elaborations of dispositions
+Artificial Intelligence (AI) 
+⦁	Meticulous: Since attention must be paid to details when implementing AI and machine learning algorithms, students must be meticulous about detail. 
+⦁	Persistent: AI techniques often operate in partially observable environments and optimization processes may have cascading errors from multiple iterations. Getting AI techniques to work predictably takes trial and error, and repeated effort. These call for persistence on the part of the student. 
+⦁	Inventive: Applications of AI involve creative problem formulation and application of AI techniques, while balancing application requirements and societal and ethical issues. 
+⦁	Responsible: Applications of AI can have significant impacts on society, affecting both individuals and large populations. This calls for students to understand the implications of work in AI to society, and to make responsible choices for when and how to apply AI techniques.
+Algorithmic Foundations (AL) 
+⦁	Meticulous: As an algorithm is a formal solution to a computational problem, attention to detail is important when developing and combining algorithms. 
+⦁	Persistent: As developing algorithmic solutions to computational problems can be challenging, computer scientists must be resolute in pursuing such solutions.
+⦁	Inventive: As computer scientists develop algorithmic solutions to real-world problems, they must be inventive in developing solutions to these problems.
+Architecture and Organization (AR) 
+⦁	Self-directed: Students should increasingly become self-motivated to acquire complementary knowledge. 
+⦁	Proactive: Students should exercise control and anticipate issues related to the underlying computer system.
+Data Management (DM) 
+⦁	Meticulous: Those who either access or store data collections must be meticulous in fulfilling data ownership responsibilities. 
+⦁	Responsible: In conjunction with the professional management of (personal) data, it is equally important that data are managed responsibly. Protection from unauthorized access as well as prevention of irresponsible, though legal, use of data is paramount. Furthermore, data custodians need to protect data not only from outside attack, but from crashes and other foreseeable dangers. 
+⦁	Collaborative: Data managers and data users must behave in a collaborative fashion to ensure that the correct data are accessed and are used only in an appropriate manner.
+⦁	Responsive: The data that get stored and are accessed are always in response to an institutional need/request.
+Foundations of Programming Languages (FPL) 
+⦁	Professional: Students must demonstrate and apply the highest standards when using programming languages and formal methods to build safe systems that are fit for their purpose. 
+⦁	Meticulous: Attention to detail is essential when using programming languages and applying formal methods. 
+⦁	Inventive: Programming and approaches to formal proofs is inherently a creative process, students must demonstrate innovative approaches to problem solving. Students are accountable for their choices regarding the way a problem is solved. 
+⦁	Proactive: Programmers are responsible for anticipating all forms of user input and system behavior and to design solutions that address each one. 
+⦁	Persistent: Students must demonstrate perseverance since the correct approach is not always self-evident and a process of refinement may be necessary to reach the solution.
+Graphics and Interactive Techniques (GIT) 
+⦁	Self-directed: Graphics hardware and software evolves rapidly. Students need to understand the importance of being a life-long learner.
+⦁	Collaborative: Graphics developers typically work in diverse teams composed of people with disparate subject matter expertise. Students should understand the value of being a good team member, and their teamwork skills should be cultivated and evaluated with constructive feedback. 
+⦁	Effective communicator: Communication is critical. Students’ technical communication—verbal, written, and in code—should be practiced and evaluated.
+⦁	Creative: Creative problem-solving lies at the core of computer graphics.
+Human-Computer Interaction (HCI) 
+⦁	Adaptable: An HCI practitioner should be adaptable to address dynamic changes in technology, user needs, and design challenges.
+⦁	Meticulous: An HCI practitioner should be meticulous in ensuring that their products are both user friendly and meet the objectives of the project.
+⦁	Empathetic: An HCI practitioner must demonstrate understanding of the user’s needs.
+⦁	Team-oriented: The successful HCI practitioner should focus on the success of the team.
+⦁	Inventive: An HCI practitioner should design solutions that are informed by past practice, the needs of the audience, and HCI fundamentals. Creativity is required to blend these into something that solves the problem appropriately and elegantly.
+Mathematical and Statistical Foundations (MSF) 
+⦁	Growth mindset. Perhaps the most important of the dispositions, students should be persuaded that anyone can learn mathematics, certainly the subset foundational to CS, and that success is not dependent on innate ability. 
+⦁	Practice mindset. Students should be educated about the nature of “doing” mathematics and learning through practice with problems as opposed to merely listening or observing demonstrations in the classroom. 
+⦁	Deferred gratification. Most students are likely to learn at least some mathematics from mathematics departments unfamiliar with computing applications; computing departments should acclimate the students to the notion of waiting to see computing applications. Many of the new growth areas such as AI or quantum computing can serve as motivation. 
+⦁	Persistence. Student perceptions are often driven by frustration with inability to solve hard problems that they see some peers tackle seemingly effortlessly; computing departments should help promote the notion that eventual success through persistence is what matters. 
+⦁	Skepticism and inquiry. Students often look for “given formulas” as handed down by experts only to be memorized and used. Yet, a theoretical mindset and, more broadly, a scientific one, should feature skepticism and a curiosity about how formulas are established.
+Networking and Communication (NC) 
+⦁	Meticulous: Students must be particular about the specifics of understanding and creating networking protocols. 
+⦁	Collaborative: Students must work together to develop multiple components that interact together and to respond to failures and threats. 
+⦁	Proactive: Students must be able to predict failures, threats, and how to deal with them while avoiding reactive modes of operation only. 
+⦁	Professional: Students must comply with the needs of the community and their expectations from a networked environment, and the demands of regulatory bodies. 
+⦁	Responsive: Students must act swiftly to changes in requirements in network configurations and changing user requirements. 
+⦁	Adaptive: Students need to reconfigure systems under varying modes of operation.
+Operating systems (OS) 
+⦁	Proactive: Students must anticipate the security and performance implications of how operating systems components are used. 
+⦁	Meticulous: Students must carefully analyze the implications of operating system mechanisms on any project.
+Parallel and Distributed Computing (PDC) 
+⦁	Meticulous: Students’ attention to detail is essential when applying constructs with non-obvious correctness conditions. 
+⦁	Persistent: Students must be prepared to try alternative approaches when solutions are not self evident.
+Software Development Foundamentals (SDF) 
+⦁	Self-Directed: Students must seek out solutions to issues on their own (e.g., using technical forums, FAQs, discussions). Resolving issues is an important part of becoming proficient in programming.
+⦁	Experimental: Students must experiment with language features to understand them and to quickly prototype solutions. This helps in learning about programming language features. 
+⦁	Technical curiosity: Students must develop interest in understanding how programs are executed, how programs and data are stored in memory, etc. This will help build better mental models of the underlying execution system on which programs run. 
+⦁	Adaptable: Students must be willing to learn and use different tools and technologies that facilitate software development. Tools are commonly used while programming and new tools often emerge – using tools effectively and learning the use of new tools will help. 
+⦁	Persistent: Students must continue efforts until, for example, a bug is identified, a program is made robust and handles all situations, etc. This will help as programming requires effort and ability to persevere till a program works satisfactorily.
+⦁	Meticulous: Students must pay attention to detail and use orderly processes while programming. The underlying machine is unforgiving and there is no room for even small errors in the programs as they can cause major failures.
+Software Engineering (SE) 
+⦁	Collaborative: Software engineering is increasingly described as a “team sport” – successful software engineers are able to work with others effectively. Humility, respect, and trust underpin the collaborative relationships that are essential to success in this field. 
+⦁	Professional: Software engineering produces technology that has the chance to influence literally billions of people. Awareness of our role in society, strong ethical behavior, and commitment to respectful day-to-day behavior outside of one’s team are essential. 
+⦁	Communicative: No single software engineer on a project is likely to know all the project details. Successful software projects depend on engineers communicating clearly and regularly to coordinate effectively. 
+⦁	Meticulous: Software engineering requires attention to detail and consistent behavior from everyone on the team. Success in this field is clearly influenced by a meticulous approach - comprehensive understanding, proper procedures, and a solid avoidance of cutting corners.
+⦁	Responsible: The collaborative aspects of software engineering also highlight the value of being responsible. Failing to take responsibility, failing to follow through, and failing to keep others informed are all classic causes of team friction and bad project outcomes.
+Security (SEC) 
+⦁	Meticulous: students need to pay careful attention to details to ensure the protection of real-world software systems.
+⦁	Self-directed: students must be ready to deal with the many novel and easily unforeseeable ways in which adversaries might launch attacks. 
+⦁	Collaborative: students must be ready to collaborate with others, as collective knowledge and skills will be needed to prevent attacks, protect systems and data during attacks, and plan for the future after the immediate attack has been mitigated.
+⦁	Responsible: students need to show responsibility when designing, developing, deploying, and maintaining secure systems, as their enterprise and society is constantly at risk.
+⦁	Accountable: students need to know that as future professionals they will be held accountable if a system or data breach were to occur, which should strengthen their resolve to prevent such breaches from occurring in the first place.
+Society Ethics and Profession (SEP) 
+⦁	Critically Self-reflective: Students should be able to inspect their own actions, thoughts, biases, privileges, and motives to discover places where professional activity is not up to current standards. They must strive to understand both conscious and unconscious biases and continuously work to counteract them. 
+⦁	Responsive: Students must quickly and accurately respond to changes in the field and adapt in a professional manner, such as shifting from in-person office work to remote work at home. These shifts require rethinking one’s entire approach to what is considered “professional”. 
+⦁	Proactive: Students must be able to identify areas of importance (e.g., in accessibility and inclusion) and understand how to address them for a more professional working environment.
+⦁	Culturally Competent: Students must prioritize cultural competence—the ability to work with people from cultures different from one’s own – by using inclusive language, watching for, and counteracting conscious and unconscious biases, and encouraging honest and open communication.
+⦁	Advocative: Students must think, speak, and act in ways that foster and promote diversity, equity, inclusion, and accessibility in all ways including but not limited to teamwork, communication, and product development (hardware and software). 
+⦁	Responsible: Students must act responsibly in all areas of their work toward all users and stakeholders including the society at large, colleagues, and their profession in general.
+Systems Foundamentals (SF) 
+⦁	Meticulous: Students must pay attention to details of different perspectives when learning about and evaluating systems.
+⦁	Adaptive: Students must be flexible and adaptive when designing systems. Different systems have different requirements, constraints and working scenarios. As such, they require different designs. Students must be able to make appropriate design decisions correspondingly.
+Specialized Platform Development (SPD)
+⦁	Self-Directed: Students should be able to learn new platforms and languages with a growth-oriented mindset and thrive in dynamic environments, while continually enhancing skills. 
+⦁	Inventive: Students should demonstrate excellence in designing software architecture within unconventional constraints, emphasizing adaptability and creative problem-solving for innovative solutions. 
+⦁	Adaptable: Students should adapt to diverse challenges, showing resilience, open-mindedness, and a proactive approach to changing requirements and constraints.

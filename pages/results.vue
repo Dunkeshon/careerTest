@@ -44,8 +44,32 @@
         <RiasecChart 
           :scores="results.scores" 
           v-model:comparison-mode="selectedComparison"
+          @closest-areas-updated="handleClosestAreasUpdate"
         />
+        
+        <!-- Recommended CS Areas -->
+        <div v-if="recommendedAreas.length > 0" class="mt-6">
+          <h3 class="text-xl font-semibold mb-3 text-gray-800">Recommended CS Areas</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <button 
+              v-for="area in recommendedAreas" 
+              :key="area.name"
+              @click="openAreaPopup(area.code)"
+              class="cs-area-btn"
+            >
+              {{ area.name }}
+            </button>
+          </div>
+        </div>
       </div>
+      
+      <!-- CS Area Popup -->
+      <CSAreaPopup 
+        :visible="popupVisible" 
+        :area-code="selectedAreaCode" 
+        @close="closePopup" 
+      />
+
       <div class="mt-6">
         <h2 class="text-2xl font-bold mb-4">RIASEC Radar Chart</h2>
         <RiasecRadarChart :scores="results.scores" />
@@ -58,11 +82,15 @@
 import { ref, onMounted } from 'vue'
 import RiasecChart from '~/components/RiasecChart.vue'
 import RiasecRadarChart from '~/components/RiasecRadarChart.vue'
+import CSAreaPopup from '~/components/CSAreaPopup.vue'
 const route = useRoute()
 const results = ref(null)
 const sortedScores = ref([])
 const topCategories = ref([])
 const selectedComparison = ref('centroid')
+const recommendedAreas = ref([])
+const popupVisible = ref(false)
+const selectedAreaCode = ref(null)
 
 // Category descriptions
 const categoryInfo = {
@@ -97,6 +125,20 @@ const getCategoryDescription = (category) => categoryInfo[category].description
 
 const retakeTest = () => {
   navigateTo('/test')
+}
+
+const handleClosestAreasUpdate = (areas) => {
+  recommendedAreas.value = areas
+}
+
+const openAreaPopup = (code) => {
+  selectedAreaCode.value = code
+  popupVisible.value = true
+}
+
+const closePopup = () => {
+  selectedAreaCode.value = null
+  popupVisible.value = false
 }
 
 onMounted(() => {
@@ -134,5 +176,35 @@ input[type="radio"] {
 
 input[type="radio"]:checked + label {
   font-weight: 600;
+}
+
+/* CS Area buttons */
+.cs-area-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cs-area-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.cs-area-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 </style> 

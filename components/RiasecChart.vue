@@ -75,7 +75,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:comparisonMode'])
+const emit = defineEmits(['update:comparisonMode', 'closest-areas-updated'])
 
 // Comparison options for the radio buttons
 const comparisonOptions = [
@@ -291,6 +291,21 @@ const createChart = () => {
   const closest = csAreasWithDist.slice(0, 5)
   const closestNames = new Set(closest.map(a => a.name))
   
+  // Emit the closest areas to parent component
+  if (displayMode.value === 'all') {
+    // When showing all, emit all areas sorted by distance
+    emit('closest-areas-updated', csAreasWithDist.map(area => ({
+      name: area.name,
+      code: getAreaCodeFromName(area.name)
+    })))
+  } else {
+    // When showing closest, emit only the 5 closest
+    emit('closest-areas-updated', closest.map(area => ({
+      name: area.name,
+      code: getAreaCodeFromName(area.name)
+    })))
+  }
+  
   const linesData = closest.map(area => [comparisonPoint, { x: area.x, y: area.y }])
 
   if (chart) chart.destroy()
@@ -311,7 +326,7 @@ const createChart = () => {
           legend: false
         })) : []),
         {
-          label: 'Your Area',
+          label: 'Your Score',
           data: polygonPoints,
           backgroundColor: 'rgba(255, 64, 129, 0.15)',
           borderColor: 'rgba(255, 64, 129, 0.7)',
@@ -408,7 +423,7 @@ const createChart = () => {
                 return context.raw.name
               }
               // Show RIASEC category name and percentage for user area points
-              if (datasetLabel === 'Your Area') {
+              if (datasetLabel === 'Your Score') {
                 const point = context.raw
                 if (point.label) {
                   const score = props.scores[point.label] || 0
@@ -519,6 +534,96 @@ const toggleDisplayMode = () => {
 
 const toggleMatchMode = () => {
   matchMode.value = matchMode.value === 'best' ? 'relevance' : 'best'
+}
+
+// Helper function to extract area code from CS area name
+function getAreaCodeFromName(areaName) {
+  // Direct mapping for exact matches from the CSV
+  const exactMatches = {
+    'Artificial Intelligence (AI)': 'AI',
+    'Algorithmic Foundations (AL)': 'AL',
+    'Architecture and Organization (AR)': 'AR',
+    'Data Management (DM)': 'DM',
+    'Foundations of Programming Languages (FPL)': 'FPL',
+    'Graphics and Interactive Techniques (GIT)': 'GIT',
+    'Human-Computer Interaction (HCI)': 'HCI',
+    'Mathematical and Statistical Foundations (MSF)': 'MSF',
+    'Networking and Communication (NC)': 'NC',
+    'Operating Systems (OS)': 'OS',
+    'Parallel and Distributed Computing (PDC)': 'PDC',
+    'Software Development Fundamentals (SDF)': 'SDF',
+    'Software Engineering (SE)': 'SE',
+    'Security (SEC)': 'SEC',
+    'Society Ethics and Profession (SEP)': 'SEP',
+    'Systems Fundamentals (SF)': 'SF',
+    'Specialized Platform Development (SPD)': 'SPD'
+  }
+  
+  // Try exact match first
+  if (exactMatches[areaName]) {
+    return exactMatches[areaName]
+  }
+  
+  // Fallback to partial matching
+  const nameToCodeMap = {
+    'Artificial Intelligence': 'AI',
+    'Machine Learning': 'AI',
+    'Data Science': 'AI',
+    'Algorithm': 'AL',
+    'Algorithms': 'AL',
+    'Data Structures': 'AL',
+    'Computer Architecture': 'AR',
+    'Computer Organization': 'AR',
+    'Architecture and Organization': 'AR',
+    'Database': 'DM',
+    'Data Management': 'DM',
+    'Programming Language': 'FPL',
+    'Programming Languages': 'FPL',
+    'Compiler': 'FPL',
+    'Graphics': 'GIT',
+    'Computer Graphics': 'GIT',
+    'Game Development': 'GIT',
+    'Human Computer Interaction': 'HCI',
+    'User Interface': 'HCI',
+    'UX': 'HCI',
+    'Mathematical and Statistical': 'MSF',
+    'Mathematics': 'MSF',
+    'Statistics': 'MSF',
+    'Network': 'NC',
+    'Networking': 'NC',
+    'Communication': 'NC',
+    'Operating System': 'OS',
+    'System Programming': 'OS',
+    'Parallel Computing': 'PDC',
+    'Distributed Computing': 'PDC',
+    'Software Development': 'SDF',
+    'Programming': 'SDF',
+    'Software Engineering': 'SE',
+    'Project Management': 'SE',
+    'Security': 'SEC',
+    'Cybersecurity': 'SEC',
+    'Information Security': 'SEC',
+    'Ethics': 'SEP',
+    'Professional Practice': 'SEP',
+    'Society Ethics': 'SEP',
+    'System': 'SF',
+    'Systems': 'SF',
+    'Systems Fundamentals': 'SF',
+    'Mobile Development': 'SPD',
+    'Web Development': 'SPD',
+    'Embedded Systems': 'SPD',
+    'Specialized Platform': 'SPD'
+  }
+  
+  // Try to find a match in the name
+  for (const [keyword, code] of Object.entries(nameToCodeMap)) {
+    if (areaName.toLowerCase().includes(keyword.toLowerCase())) {
+      return code
+    }
+  }
+  
+  // Ultimate fallback
+  return 'CS'
 }
 </script>
 
