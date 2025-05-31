@@ -1,21 +1,40 @@
 <template>
   <div class="riasec-plot-container">
-    <canvas ref="chartCanvas"></canvas>
+    <div class="toggle-btns">
+      <SelectButton v-model="displayMode" :options="displayOptions" optionLabel="label" optionValue="value" aria-labelledby="displaymode" />
+    </div>
+    <div v-if="displayMode === 'closest'" class="lines-checkbox">
+      <label><input type="checkbox" v-model="showLines" /> Show lines to closest</label>
+    </div>
+    <div class="plot-wrapper">
+      <canvas ref="chartCanvas"></canvas>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import Chart from 'chart.js/auto'
+import SelectButton from 'primevue/selectbutton'
 import csAreasRaw from '~/server/cs_areas.csv?raw'
 
 const props = defineProps({
   scores: {
     type: Object,
     default: () => ({})
+  },
+  comparisonMode: {
+    type: String,
+    default: 'centroid'
   }
 })
 
+const displayOptions = [
+  { label: 'Show closest', value: 'closest' },
+  { label: 'Show all', value: 'all' }
+]
+const displayMode = ref('closest')
+const showLines = ref(true)
 const chartCanvas = ref(null)
 let chart = null
 
@@ -28,6 +47,17 @@ const riasecPoints = [
   { x: 3, y: 4, label: 'E' },
   { x: 3, y: 8, label: 'C' }
 ]
+
+// Color mapping for different comparison modes
+const comparisonColors = {
+  centroid: '#eab308', // yellow-500
+  R: '#dc2626', // red-600
+  I: '#16a34a', // green-600
+  A: '#9333ea', // purple-600
+  S: '#ca8a04', // yellow-600
+  E: '#ea580c', // orange-600
+  C: '#0d9488'  // teal-600
+}
 
 // Parse CS Areas CSV
 function parseCSAreas(csv) {
@@ -55,7 +85,23 @@ const scaleScore = (score, category) => {
   return { x: newX, y: newY }
 }
 
+// Helper: calculate centroid of polygon
+function getCentroid(points) {
+  let x = 0, y = 0, n = points.length
+  for (const p of points) {
+    x += p.x
+    y += p.y
+  }
+  return { x: x / n, y: y / n }
+}
+
 const createChart = () => {
+  // Ensure canvas pixel size matches rendered size (mobile first)
+  const wrapper = chartCanvas.value.parentElement;
+  const size = Math.min(wrapper.offsetWidth, wrapper.offsetHeight);
+  chartCanvas.value.width = size;
+  chartCanvas.value.height = size;
+
   const ctx = chartCanvas.value.getContext('2d')
   const riasecOrder = ['R', 'I', 'A', 'S', 'E', 'C']
   const userPoints = riasecOrder.map(category => {
@@ -68,6 +114,30 @@ const createChart = () => {
     }
   })
   const polygonPoints = [...userPoints, userPoints[0]]
+  const centroid = getCentroid(userPoints)
+
+  const getComparisonPoint = () => {
+    if (props.comparisonMode === 'centroid') {
+      return centroid
+    }
+    // For RIASEC categories, use their reference points
+    const refPoint = riasecPoints.find(p => p.label === props.comparisonMode)
+    return refPoint
+  }
+
+  const comparisonPoint = getComparisonPoint()
+  
+  // Calculate distances from the comparison point
+  const csAreasWithDist = csAreas.map(area => ({
+    ...area,
+    dist: Math.sqrt((area.x - comparisonPoint.x) ** 2 + (area.y - comparisonPoint.y) ** 2)
+  }))
+  
+  csAreasWithDist.sort((a, b) => a.dist - b.dist)
+  const closest = csAreasWithDist.slice(0, 5)
+  const closestNames = new Set(closest.map(a => a.name))
+  
+  const linesData = closest.map(area => [comparisonPoint, { x: area.x, y: area.y }])
 
   if (chart) chart.destroy()
 
@@ -75,10 +145,21 @@ const createChart = () => {
     type: 'scatter',
     data: {
       datasets: [
+        ...((displayMode.value === 'closest' && showLines.value) ? linesData.map(line => ({
+          label: 'Line to Closest',
+          data: line,
+          showLine: true,
+          fill: false,
+          borderColor: comparisonColors[props.comparisonMode],
+          borderWidth: 2,
+          pointRadius: 0,
+          order: 0,
+          legend: false
+        })) : []),
         {
           label: 'Your Area',
           data: polygonPoints,
-          backgroundColor: 'rgba(255, 64, 129, 0.15)', // pink fill
+          backgroundColor: 'rgba(255, 64, 129, 0.15)',
           borderColor: 'rgba(255, 64, 129, 0.7)',
           borderWidth: 2,
           pointRadius: 0,
@@ -89,16 +170,18 @@ const createChart = () => {
         },
         {
           label: 'CS Areas',
-          data: csAreas,
-          backgroundColor: 'rgba(33, 150, 243, 0.8)', // blue
-          pointRadius: 7,
-          pointHoverRadius: 11,
+          data: displayMode.value === 'closest'
+            ? csAreas.map(a => ({ ...a, highlight: closestNames.has(a.name) }))
+            : csAreas.map(a => ({ ...a, highlight: false })),
+          backgroundColor: ctx => ctx.raw.highlight ? comparisonColors[props.comparisonMode] : 'rgba(33, 150, 243, 0.8)',
+          borderColor: ctx => ctx.raw.highlight ? comparisonColors[props.comparisonMode] : '#1976d2',
+          borderWidth: ctx => ctx.raw.highlight ? 4 : 2,
+          pointRadius: ctx => ctx.raw.highlight ? 12 : 7,
+          pointHoverRadius: ctx => ctx.raw.highlight ? 16 : 11,
           pointStyle: 'rectRounded',
-          borderColor: '#1976d2',
-          borderWidth: 2,
           showLine: false,
           order: 3
-        }
+        },
       ]
     },
     options: {
@@ -120,7 +203,6 @@ const createChart = () => {
           },
           axis: 'x',
           offset: false,
-          // Draw axis at center
           position: 'center',
         },
         y: {
@@ -135,7 +217,6 @@ const createChart = () => {
           },
           axis: 'y',
           offset: false,
-          // Draw axis at center
           position: 'center',
         }
       },
@@ -143,7 +224,9 @@ const createChart = () => {
         legend: {
           labels: {
             color: '#ab47bc',
-            font: { size: 14 }
+            font: { size: 14 },
+            // Hide 'Line to Closest' from legend
+            filter: (item) => item.text !== 'Line to Closest'
           }
         },
         tooltip: {
@@ -154,11 +237,17 @@ const createChart = () => {
           callbacks: {
             label: function(context) {
               const datasetLabel = context.dataset.label
+              // Only show CS area name for CS area points
               if (datasetLabel === 'CS Areas') {
                 return context.raw.name
               }
-              const point = context.raw
-              return `${point.label}: (${point.x.toFixed(1)}, ${point.y.toFixed(1)})`
+              // Only show coordinates for user area points
+              if (datasetLabel === 'Your Area') {
+                const point = context.raw
+                return `${point.label ? point.label + ': ' : ''}(${point.x.toFixed(1)}, ${point.y.toFixed(1)})`
+              }
+              // No tooltip for lines or centroid
+              return ''
             }
           },
           displayColors: false,
@@ -235,33 +324,52 @@ onMounted(() => {
   createChart()
 })
 
-watch(() => props.scores, () => {
+watch([() => props.scores, displayMode, showLines], () => {
   createChart()
 }, { deep: true })
+
+// Watch for changes in comparison mode
+watch(() => props.comparisonMode, () => {
+  createChart()
+})
 </script>
 
 <style scoped>
 .riasec-plot-container {
   width: 100%;
   max-width: 400px;
-  aspect-ratio: 1 / 1;
   margin: 0 auto;
-  padding: 0;
-  background: none;
-  box-shadow: none;
-  border-radius: 0;
-  overflow: visible;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+}
+.plot-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  position: relative;
 }
 canvas {
   width: 100% !important;
   height: 100% !important;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
   background: none;
   box-shadow: none;
   border-radius: 0;
-  display: block;
+}
+.toggle-btns {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  flex-direction: row;
+  gap: 0.5rem;
+}
+.lines-checkbox {
+  margin-bottom: 0.5rem;
+  color: #ab47bc;
+  font-weight: bold;
 }
 @media (max-width: 600px) {
   .riasec-plot-container {

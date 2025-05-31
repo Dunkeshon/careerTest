@@ -15,5 +15,10 @@ export default defineNuxtConfig({
   devServer: {
     host: '0.0.0.0',
     port: 3000
-  }
+  },
+  css: [
+    'primevue/resources/themes/saga-blue/theme.css',
+    'primevue/resources/primevue.min.css',
+    'primeicons/primeicons.css'
+  ]
 })
