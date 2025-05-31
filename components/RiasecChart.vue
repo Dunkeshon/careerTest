@@ -310,7 +310,7 @@ const createChart = () => {
         if (!chartArea) return
         // Draw vertical axis (people-things)
         ctx.save()
-        ctx.strokeStyle = '#ab47bc'
+        ctx.strokeStyle = '#535353'
         ctx.lineWidth = 2
         ctx.beginPath()
         ctx.moveTo(scales.x.getPixelForValue(6), chartArea.top)
@@ -325,7 +325,7 @@ const createChart = () => {
         // Draw axis labels with custom offsets
         ctx.save()
         ctx.font = 'bold 14px sans-serif'
-        ctx.fillStyle = '#ab47bc'
+        ctx.fillStyle = '#535353'
         // Left (People) - higher
         ctx.textAlign = 'right'
         ctx.textBaseline = 'bottom'
