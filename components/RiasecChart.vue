@@ -153,18 +153,6 @@ const createChart = () => {
   const closest = csAreasWithDist.slice(0, 5)
   const closestNames = new Set(closest.map(a => a.name))
   
-  // Debug: log closest areas and their distances
-  console.log('Comparison point:', comparisonPoint)
-  console.log('Comparison mode:', props.comparisonMode)
-  console.log('All areas with distances:', csAreasWithDist.map(area => ({ 
-    name: area.name, 
-    dist: area.dist.toFixed(3), 
-    x: area.originalX || area.x, 
-    y: area.originalY || area.y,
-    isExactMatch: area.dist === 0
-  })))
-  console.log('Closest areas:', closest.map(area => ({ name: area.name, dist: area.dist.toFixed(3), x: area.originalX || area.x, y: area.originalY || area.y })))
-  
   const linesData = closest.map(area => [comparisonPoint, { x: area.x, y: area.y }])
 
   if (chart) chart.destroy()
@@ -199,17 +187,29 @@ const createChart = () => {
         {
           label: 'CS Areas',
           data: displayMode.value === 'closest'
-            ? csAreas.map(a => ({ ...a, highlight: closestNames.has(a.name) }))
-            : csAreas.map(a => ({ ...a, highlight: false })),
-          backgroundColor: ctx => ctx.raw.highlight ? comparisonColors[props.comparisonMode] : 'rgba(33, 150, 243, 0.8)',
-          borderColor: ctx => ctx.raw.highlight ? comparisonColors[props.comparisonMode] : '#1976d2',
-          borderWidth: ctx => ctx.raw.highlight ? 4 : 2,
-          pointRadius: ctx => ctx.raw.highlight ? 12 : 7,
-          pointHoverRadius: ctx => ctx.raw.highlight ? 16 : 11,
+            ? csAreas.filter(a => !closestNames.has(a.name))
+            : csAreas,
+          backgroundColor: 'rgba(33, 150, 243, 0.8)',
+          borderColor: '#1976d2',
+          borderWidth: 2,
+          pointRadius: 7,
+          pointHoverRadius: 11,
           pointStyle: 'rectRounded',
           showLine: false,
           order: 3
         },
+        ...(displayMode.value === 'closest' ? [{
+          label: 'CS Areas Highlighted',
+          data: csAreas.filter(a => closestNames.has(a.name)),
+          backgroundColor: comparisonColors[props.comparisonMode],
+          borderColor: comparisonColors[props.comparisonMode],
+          borderWidth: 4,
+          pointRadius: 12,
+          pointHoverRadius: 16,
+          pointStyle: 'rectRounded',
+          showLine: false,
+          order: 1
+        }] : [])
       ]
     },
     options: {
@@ -253,8 +253,8 @@ const createChart = () => {
           labels: {
             color: '#ab47bc',
             font: { size: 14 },
-            // Hide 'Line to Closest' from legend
-            filter: (item) => item.text !== 'Line to Closest'
+            // Hide 'Line to Closest' and highlighted dataset from legend
+            filter: (item) => item.text !== 'Line to Closest' && item.text !== 'CS Areas Highlighted'
           }
         },
         tooltip: {
@@ -265,8 +265,8 @@ const createChart = () => {
           callbacks: {
             label: function(context) {
               const datasetLabel = context.dataset.label
-              // Only show CS area name for CS area points
-              if (datasetLabel === 'CS Areas') {
+              // Show CS area name for CS area points
+              if (datasetLabel === 'CS Areas' || datasetLabel === 'CS Areas Highlighted') {
                 return context.raw.name
               }
               // Only show coordinates for user area points
