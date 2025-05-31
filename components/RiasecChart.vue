@@ -69,7 +69,18 @@ function parseCSAreas(csv) {
   }
   return result
 }
-const csAreas = parseCSAreas(csAreasRaw)
+
+// Function to handle overlapping points by applying small offsets
+function handleOverlappingPoints(areas) {
+  // Temporarily disable overlapping logic to debug exact matching
+  return areas.map(area => ({
+    ...area,
+    originalX: area.x,
+    originalY: area.y
+  }))
+}
+
+const csAreas = handleOverlappingPoints(parseCSAreas(csAreasRaw))
 
 // Convert RIASEC score (0-32) to plot coordinates (1-11)
 const scaleScore = (score, category) => {
@@ -120,22 +131,39 @@ const createChart = () => {
     if (props.comparisonMode === 'centroid') {
       return centroid
     }
-    // For RIASEC categories, use their reference points
-    const refPoint = riasecPoints.find(p => p.label === props.comparisonMode)
-    return refPoint
+    // For RIASEC categories, use the user's actual score point for that category
+    const userPoint = userPoints.find(p => p.label === props.comparisonMode)
+    return userPoint
   }
 
   const comparisonPoint = getComparisonPoint()
   
   // Calculate distances from the comparison point
-  const csAreasWithDist = csAreas.map(area => ({
-    ...area,
-    dist: Math.sqrt((area.x - comparisonPoint.x) ** 2 + (area.y - comparisonPoint.y) ** 2)
-  }))
+  const csAreasWithDist = csAreas.map(area => {
+    const originalX = area.originalX || area.x
+    const originalY = area.originalY || area.y
+    const dist = Math.sqrt((originalX - comparisonPoint.x) ** 2 + (originalY - comparisonPoint.y) ** 2)
+    return {
+      ...area,
+      dist: dist
+    }
+  })
   
   csAreasWithDist.sort((a, b) => a.dist - b.dist)
   const closest = csAreasWithDist.slice(0, 5)
   const closestNames = new Set(closest.map(a => a.name))
+  
+  // Debug: log closest areas and their distances
+  console.log('Comparison point:', comparisonPoint)
+  console.log('Comparison mode:', props.comparisonMode)
+  console.log('All areas with distances:', csAreasWithDist.map(area => ({ 
+    name: area.name, 
+    dist: area.dist.toFixed(3), 
+    x: area.originalX || area.x, 
+    y: area.originalY || area.y,
+    isExactMatch: area.dist === 0
+  })))
+  console.log('Closest areas:', closest.map(area => ({ name: area.name, dist: area.dist.toFixed(3), x: area.originalX || area.x, y: area.originalY || area.y })))
   
   const linesData = closest.map(area => [comparisonPoint, { x: area.x, y: area.y }])
 
