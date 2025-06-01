@@ -67,7 +67,9 @@
       <CSAreaPopup 
         :visible="popupVisible" 
         :area-code="selectedAreaCode" 
+        :closest-areas="recommendedAreas"
         @close="closePopup" 
+        @navigate="handleAreaNavigation"
       />
 
       <div class="mt-6">
@@ -139,6 +141,10 @@ const openAreaPopup = (code) => {
 const closePopup = () => {
   selectedAreaCode.value = null
   popupVisible.value = false
+}
+
+const handleAreaNavigation = (code) => {
+  selectedAreaCode.value = code
 }
 
 onMounted(() => {

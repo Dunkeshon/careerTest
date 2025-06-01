@@ -288,7 +288,26 @@ const createChart = () => {
   })
   
   csAreasWithDist.sort((a, b) => a.dist - b.dist)
-  const closest = csAreasWithDist.slice(0, 5)
+  
+  // Get all areas that are among the 5 closest distances (including ties)
+  const closest = []
+  const uniqueDistances = []
+  
+  // Get the unique distances for the first 5 positions
+  for (const area of csAreasWithDist) {
+    if (uniqueDistances.length < 5 && !uniqueDistances.includes(area.dist)) {
+      uniqueDistances.push(area.dist)
+    }
+  }
+  
+  // Include all areas that have distances within the top 5 unique distances
+  const maxDistanceToInclude = uniqueDistances[Math.min(4, uniqueDistances.length - 1)]
+  for (const area of csAreasWithDist) {
+    if (area.dist <= maxDistanceToInclude) {
+      closest.push(area)
+    }
+  }
+  
   const closestNames = new Set(closest.map(a => a.name))
   
   // Emit the closest areas to parent component
@@ -412,15 +431,46 @@ const createChart = () => {
         },
         tooltip: {
           enabled: true,
-          mode: 'nearest',
-          intersect: true,
+          mode: 'point',
+          intersect: false,
           usePointStyle: true,
           callbacks: {
+            title: function(context) {
+              // For overlapping points, show a custom title
+              if (context.length > 0) {
+                const datasetLabel = context[0].dataset.label
+                if (datasetLabel === 'CS Areas' || datasetLabel === 'CS Areas Highlighted') {
+                  // Check if there are multiple areas at the same coordinates
+                  const clickedPoint = context[0].raw
+                  const overlappingAreas = csAreas.filter(area => 
+                    Math.abs(area.x - clickedPoint.x) < 0.1 && 
+                    Math.abs(area.y - clickedPoint.y) < 0.1
+                  )
+                  
+                  if (overlappingAreas.length > 1) {
+                    return `${overlappingAreas.length} CS Areas at this location:`
+                  }
+                }
+              }
+              return ''
+            },
             label: function(context) {
               const datasetLabel = context.dataset.label
               // Show CS area name for CS area points
               if (datasetLabel === 'CS Areas' || datasetLabel === 'CS Areas Highlighted') {
-                return context.raw.name
+                const clickedPoint = context.raw
+                // Find all areas at the same coordinates
+                const overlappingAreas = csAreas.filter(area => 
+                  Math.abs(area.x - clickedPoint.x) < 0.1 && 
+                  Math.abs(area.y - clickedPoint.y) < 0.1
+                )
+                
+                if (overlappingAreas.length > 1) {
+                  // Return all overlapping area names
+                  return overlappingAreas.map(area => area.name)
+                } else {
+                  return context.raw.name
+                }
               }
               // Show RIASEC category name and percentage for user area points
               if (datasetLabel === 'Your Score') {
