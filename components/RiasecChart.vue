@@ -408,6 +408,7 @@ const createChart = () => {
         y: {
           min: 0.5,
           max: 11.5,
+          reverse: true,
           grid: {
             color: 'rgba(186, 104, 200, 0.15)',
             lineWidth: 1
@@ -431,8 +432,8 @@ const createChart = () => {
         },
         tooltip: {
           enabled: true,
-          mode: 'point',
-          intersect: false,
+          mode: 'nearest',
+          intersect: true,
           usePointStyle: true,
           callbacks: {
             title: function(context) {
@@ -440,15 +441,14 @@ const createChart = () => {
               if (context.length > 0) {
                 const datasetLabel = context[0].dataset.label
                 if (datasetLabel === 'CS Areas' || datasetLabel === 'CS Areas Highlighted') {
-                  // Check if there are multiple areas at the same coordinates
                   const clickedPoint = context[0].raw
                   const overlappingAreas = csAreas.filter(area => 
-                    Math.abs(area.x - clickedPoint.x) < 0.1 && 
-                    Math.abs(area.y - clickedPoint.y) < 0.1
+                    Math.abs(area.x - clickedPoint.x) < 0.01 && 
+                    Math.abs(area.y - clickedPoint.y) < 0.01
                   )
                   
                   if (overlappingAreas.length > 1) {
-                    return `${overlappingAreas.length} CS Areas at this location:`
+                    return `${overlappingAreas.length} areas here:`
                   }
                 }
               }
@@ -459,17 +459,34 @@ const createChart = () => {
               // Show CS area name for CS area points
               if (datasetLabel === 'CS Areas' || datasetLabel === 'CS Areas Highlighted') {
                 const clickedPoint = context.raw
-                // Find all areas at the same coordinates
+                // Find all areas at the same exact coordinates
                 const overlappingAreas = csAreas.filter(area => 
-                  Math.abs(area.x - clickedPoint.x) < 0.1 && 
-                  Math.abs(area.y - clickedPoint.y) < 0.1
+                  Math.abs(area.x - clickedPoint.x) < 0.01 && 
+                  Math.abs(area.y - clickedPoint.y) < 0.01
                 )
                 
                 if (overlappingAreas.length > 1) {
-                  // Return all overlapping area names
-                  return overlappingAreas.map(area => area.name)
+                  // Create a unique set of area names and only show once per tooltip
+                  const uniqueNames = [...new Set(overlappingAreas.map(area => area.name))]
+                  
+                  // Only show the full list from the first context to avoid duplication
+                  if (context.dataIndex === 0 || 
+                      !context.chart._tooltipShownForLocation || 
+                      context.chart._tooltipShownForLocation !== `${Math.round(clickedPoint.x * 100)},${Math.round(clickedPoint.y * 100)}`) {
+                    
+                    context.chart._tooltipShownForLocation = `${Math.round(clickedPoint.x * 100)},${Math.round(clickedPoint.y * 100)}`
+                    
+                    return uniqueNames
+                  } else {
+                    return [] // Already shown, don't duplicate
+                  }
                 } else {
-                  return context.raw.name
+                  // Single area
+                  const area = overlappingAreas[0] || csAreas.find(area => 
+                    Math.abs(area.x - clickedPoint.x) < 0.01 && 
+                    Math.abs(area.y - clickedPoint.y) < 0.01
+                  )
+                  return area ? area.name : (context.raw.name || 'CS Area')
                 }
               }
               // Show RIASEC category name and percentage for user area points
@@ -492,12 +509,20 @@ const createChart = () => {
               }
               // No tooltip for lines or centroid
               return ''
+            },
+            beforeBody: function(context) {
+              // Reset the location tracker for each new tooltip
+              if (context.length > 0) {
+                context[0].chart._tooltipShownForLocation = null
+              }
+              return ''
             }
           },
           displayColors: false,
           bodyFont: { size: 16 },
+          titleFont: { size: 12 },
           backgroundColor: 'rgba(255,255,255,0.95)',
-          titleColor: '#d81b60',
+          titleColor: '#888',
           bodyColor: '#333',
           borderColor: '#d81b60',
           borderWidth: 2,
@@ -542,22 +567,22 @@ const createChart = () => {
         ctx.save()
         ctx.font = 'bold 14px sans-serif'
         ctx.fillStyle = '#535353'
-        // Left (People) - higher
+        // Left (People) - with right arrow
         ctx.textAlign = 'right'
         ctx.textBaseline = 'bottom'
         ctx.fillText('People', chartArea.left + 32, scales.y.getPixelForValue(6) - 18)
-        // Right (Things) - higher
+        // Right (Things) - with left arrow
         ctx.textAlign = 'left'
         ctx.textBaseline = 'bottom'
-        ctx.fillText('Things', chartArea.right - 32, scales.y.getPixelForValue(6) - 18)
-        // Top (Data) - offset right, higher
+        ctx.fillText('→ Things', chartArea.right - 50, scales.y.getPixelForValue(6) - 18)
+        // Top (Data) - with down arrow
         ctx.textAlign = 'left'
         ctx.textBaseline = 'top'
         ctx.fillText('Data', scales.x.getPixelForValue(6) + 18, chartArea.top + 8)
-        // Bottom (Ideas) - offset right, lower
+        // Bottom (Ideas) - with up arrow
         ctx.textAlign = 'left'
         ctx.textBaseline = 'bottom'
-        ctx.fillText('Ideas', scales.x.getPixelForValue(6) + 18, chartArea.bottom - 8)
+        ctx.fillText('↓ Ideas', scales.x.getPixelForValue(6) + 18, chartArea.bottom - 8)
         ctx.restore()
       }
     }]

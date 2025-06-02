@@ -1,46 +1,57 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <div v-if="results" class="max-w-2xl mx-auto">
-      <div class=" mb-6">
-        <h1 class="text-3xl font-bold text-center mb-4">Congratulations!</h1>
-        <p class="text-lg text-center mb-6">
-          You've completed the career assessment test. Based on your answers, your highest scoring category is:
-        </p>
-        <div class="bg-blue-400 p-8 rounded-xl mb-6 flex flex-col items-center shadow-lg animate-pop">
-          <div v-for="category in topCategories" :key="category" class="mb-2 last:mb-0">
-            <h2 class="text-3xl font-extrabold text-white text-center drop-shadow">
-              {{ getCategoryName(category) }}
-            </h2>
-            <p class="text-lg text-white text-center mb-2">
-              {{ getCategoryDescription(category) }}
-            </p>
-          </div>
-        </div>
-        <p class="text-center text-gray-700 font-normal text-lg mb-4">This is where your strengths shine the most!</p>
-        <div class="flex justify-center mt-4">
-          <button @click="retakeTest" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow transition">Retake Test</button>
-        </div>
-      </div>
-
-      <div class="">
-        <h2 class="text-2xl font-bold mb-4">Your Scores</h2>
-        <div class="space-y-4">
-          <div v-for="([category, score], idx) in sortedScores" :key="category" 
-               class="flex items-center justify-between p-3 rounded-lg"
-               :class="topCategories.includes(category) ? 'bg-blue-50 border-2 border-blue-400' : 'bg-gray-50'">
-            <div>
-              <span class="font-semibold">{{ getCategoryName(category) }}</span>
-              <p class="text-sm text-gray-600">{{ getCategoryDescription(category) }}</p>
+    <div v-if="results" class="max-w-4xl mx-auto">
+      
+      <!-- Main Title -->
+      <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">Find your role in computer science</h1>
+      
+      <!-- Highest Score Section -->
+      <div class="text-center mb-8">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700">
+          You scored the most at <span class="text-blue-600 font-bold">{{ getCategoryName(topCategories[0]) }}</span>
+        </h2>
+        
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl mb-6 max-w-2xl mx-auto">
+          <div class="text-left space-y-4 text-sm text-gray-700">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="space-y-3">
+                <div :class="{ 'bg-blue-100 p-3 rounded-lg border-2 border-blue-300': topCategories.includes('R') }">
+                  <p><strong class="text-red-600">Realistic (R):</strong> Prefers practical, hands-on work using tools, machines, or tangible materials. Tends to value clear procedures and concrete results.</p>
+                </div>
+                <div :class="{ 'bg-blue-100 p-3 rounded-lg border-2 border-blue-300': topCategories.includes('I') }">
+                  <p><strong class="text-green-600">Investigative (I):</strong> Drawn to analytical, scientific, or technical tasks; enjoys solving abstract problems, conducting research, and gathering information.</p>
+                </div>
+                <div :class="{ 'bg-blue-100 p-3 rounded-lg border-2 border-blue-300': topCategories.includes('A') }">
+                  <p><strong class="text-purple-600">Artistic (A):</strong> Favors creative, unstructured activities; likes designing, imagining, and expressing ideas visually or through writing.</p>
+                </div>
+              </div>
+              <div class="space-y-3">
+                <div :class="{ 'bg-blue-100 p-3 rounded-lg border-2 border-blue-300': topCategories.includes('S') }">
+                  <p><strong class="text-yellow-600">Social (S):</strong> Enjoys helping, teaching, or providing service; finds fulfillment in interpersonal communication and improving others' well-being.</p>
+                </div>
+                <div :class="{ 'bg-blue-100 p-3 rounded-lg border-2 border-blue-300': topCategories.includes('E') }">
+                  <p><strong class="text-orange-600">Enterprising (E):</strong> Motivated by leadership, persuasion, or influencing others; comfortable taking risks, initiating projects, and setting organizational goals.</p>
+                </div>
+                <div :class="{ 'bg-blue-100 p-3 rounded-lg border-2 border-blue-300': topCategories.includes('C') }">
+                  <p><strong class="text-teal-600">Conventional (C):</strong> Seeks structure, order, and clear procedures; prefers working with data, following established rules, and performing detail-oriented tasks.</p>
+                </div>
+              </div>
             </div>
-            <span class="text-xl font-bold" :class="topCategories.includes(category) ? 'text-blue-600' : 'text-gray-700'">
-              {{ score }}
-            </span>
           </div>
         </div>
       </div>
 
-      <div class="mt-6">
-        <h2 class="text-2xl font-bold mb-4">RIASEC Mapping</h2>
+      <!-- Interpreting Results Section -->
+      <div class="mb-8">
+        <h3 class="text-lg font-semibold mb-3 text-left text-gray-800">Interpreting results</h3>
+        <p class="text-gray-700 text-left leading-relaxed">
+          We take your RIASEC scores (Realistic, Investigative, Artistic, Social, Enterprising, Conventional) and plot them on a two-dimensional grid defined by "People ↔ Things" (horizontal) and "Data ↔ Ideas" (vertical). Each CS domain has been positioned on that same grid according to its typical tasks—some areas lean more toward hands-on technical work, others toward abstract, creative problem-solving or working directly with people. By comparing where your RIASEC profile lands to where each domain sits, we highlight the computer science fields that best match your interests and strengths.
+        </p>
+      </div>
+
+      <!-- Exploring Careers Section -->
+      <div class="mt-8 mb-8">
+        <h2 class="text-2xl font-bold mb-4">Exploring careers</h2>
         <RiasecChart 
           :scores="results.scores" 
           v-model:comparison-mode="selectedComparison"
@@ -72,9 +83,63 @@
         @navigate="handleAreaNavigation"
       />
 
-      <div class="mt-6">
-        <h2 class="text-2xl font-bold mb-4">RIASEC Radar Chart</h2>
-        <RiasecRadarChart :scores="results.scores" />
+      <!-- Results in Depth Section -->
+      <div class="mt-8">
+        <h2 class="text-2xl font-bold mb-4">Results in depth</h2>
+        
+        <!-- RIASEC Radar Chart -->
+        <div class="mb-6">
+          <RiasecRadarChart :scores="results.scores" />
+        </div>
+        
+        <!-- Holland Codes Explanation -->
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h4 class="text-lg font-semibold mb-3 text-gray-800">About Holland Codes (RIASEC)</h4>
+          <div class="text-gray-700 space-y-4 text-sm leading-relaxed">
+            <p>
+              Holland Codes (also known as RIASEC) are a framework for understanding people's vocational interests and personalities in relation to work environments. Developed by psychologist John L. Holland in the 1950s, the theory posits that both individuals and work settings can be grouped into six broad types. By matching a person's top interest‐types (their "Holland codes") with similar work environments, one can predict job satisfaction, performance, and career fit.
+            </p>
+            
+            <div>
+              <h5 class="font-semibold text-gray-800 mb-2">The Core Idea</h5>
+              <ul class="list-disc list-inside space-y-2 ml-4">
+                <li><strong>People Have Distinct Interest Patterns:</strong> Holland observed that most individuals gravitate toward certain activities and tasks—some enjoy hands‐on mechanical work, others prefer creative expression, still others seek helping professions, and so on.</li>
+                <li><strong>Work Environments Also Have "Styles":</strong> Just as people vary, so do workplaces. Some jobs involve mostly data and analysis, others emphasize teamwork or creative problem‐solving, and others demand precise, detail‐oriented tasks.</li>
+                <li><strong>"Like Attracts Like":</strong> When a person's interest pattern (their Holland code) closely matches the "style" of their work environment, they tend to be more engaged, productive, and satisfied. Conversely, a mismatch often leads to low motivation and high turnover.</li>
+              </ul>
+            </div>
+            
+            <p>
+              Holland boiled interests down to six fundamental categories—each represented by a letter. That's why his model is often called "RIASEC", after the initials of the six types.
+            </p>
+          </div>
+        </div>
+        
+        <!-- Detailed Scores -->
+        <div class="mt-6">
+          <h4 class="text-lg font-semibold mb-3 text-gray-800">Your detailed scores</h4>
+          <div class="space-y-3">
+            <div v-for="([category, score], idx) in sortedScores" :key="category" 
+                 class="flex items-center justify-between p-4 rounded-lg"
+                 :class="topCategories.includes(category) ? 'bg-blue-50 border-2 border-blue-400' : 'bg-gray-50'">
+              <div class="flex-1">
+                <span class="font-semibold text-lg">{{ getCategoryName(category) }}</span>
+                <p class="text-sm text-gray-600">{{ getCategoryDescription(category) }}</p>
+              </div>
+              <div class="text-right">
+                <span class="text-2xl font-bold" :class="topCategories.includes(category) ? 'text-blue-600' : 'text-gray-700'">
+                  {{ score }}
+                </span>
+                <p class="text-xs text-gray-500">/ 32</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Retake Test Button -->
+      <div class="flex justify-center mt-8 pt-6 border-t border-gray-200">
+        <button @click="retakeTest" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow transition">Retake Test</button>
       </div>
     </div>
   </div>
@@ -94,31 +159,31 @@ const recommendedAreas = ref([])
 const popupVisible = ref(false)
 const selectedAreaCode = ref(null)
 
-// Category descriptions
+// Updated category descriptions to match the new format
 const categoryInfo = {
   R: {
     name: 'Realistic',
-    description: 'Practical, physical, hands-on, mechanical'
+    description: 'Prefers practical, hands-on work using tools, machines, or tangible materials'
   },
   I: {
     name: 'Investigative',
-    description: 'Analytical, intellectual, scientific, explorative'
+    description: 'Drawn to analytical, scientific, or technical tasks; enjoys solving abstract problems'
   },
   A: {
     name: 'Artistic',
-    description: 'Creative, original, independent, chaotic'
+    description: 'Favors creative, unstructured activities; likes designing and expressing ideas'
   },
   S: {
     name: 'Social',
-    description: 'Helpful, cooperative, supportive, healing'
+    description: 'Enjoys helping, teaching, or providing service; finds fulfillment in interpersonal communication'
   },
   E: {
     name: 'Enterprising',
-    description: 'Persuasive, leadership, managing, competitive'
+    description: 'Motivated by leadership, persuasion, or influencing others; comfortable taking risks'
   },
   C: {
     name: 'Conventional',
-    description: 'Detail-oriented, organized, clerical'
+    description: 'Seeks structure, order, and clear procedures; prefers working with data'
   }
 }
 
