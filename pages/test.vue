@@ -172,27 +172,32 @@ onMounted(async () => {
     isLoading.value = false
 
     // Add keyboard event listener
-    window.addEventListener('keydown', (e) => {
-      if (e.key.toLowerCase() === 'q') {
-        answerFirst41Randomly()
-      } else if (e.key === '0') {
-        scoreUnansweredWithMinimum()
-      }
-    })
+    window.addEventListener('keydown', handleKeydown)
   } catch (error) {
     console.error('Error loading questions:', error)
   }
 })
 
+// Keyboard event handler
+function handleKeydown(e) {
+  // Handle number keys 1-5 for answering current question
+  if (['1', '2', '3', '4', '5'].includes(e.key)) {
+    const rating = parseInt(e.key)
+    if (activeIndex.value !== null && answers.value[activeIndex.value] === null) {
+      onAnswer(activeIndex.value, rating)
+    }
+  }
+  // Development shortcuts
+  else if (e.key.toLowerCase() === 'q') {
+    answerFirst41Randomly()
+  } else if (e.key === '0') {
+    scoreUnansweredWithMinimum()
+  }
+}
+
 // Clean up event listener
 onUnmounted(() => {
-  window.removeEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() === 'q') {
-      answerFirst41Randomly()
-    } else if (e.key === '0') {
-      scoreUnansweredWithMinimum()
-    }
-  })
+  window.removeEventListener('keydown', handleKeydown)
 })
 
 const pageStart = computed(() => page.value * PAGE_SIZE)

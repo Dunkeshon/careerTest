@@ -175,8 +175,13 @@ function parseCSAreas(csv) {
   const lines = csv.trim().split('\n')
   const result = []
   for (let i = 1; i < lines.length; i++) {
-    const [name, x, y] = lines[i].split(',')
-    result.push({ name: name.trim(), x: Number(x), y: Number(y) })
+    const [name, ideas, things] = lines[i].split(',')
+    // Map correctly: x-axis = things (People-Things), y-axis = ideas (Data-Ideas)
+    result.push({ 
+      name: name.trim(), 
+      x: Number(things),  // Things value goes to x-axis (People left, Things right)
+      y: Number(ideas)    // Ideas value goes to y-axis (Data top, Ideas bottom)
+    })
   }
   return result
 }
