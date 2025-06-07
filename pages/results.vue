@@ -8,7 +8,15 @@
       <!-- Highest Score Section -->
       <div class="text-center mb-8">
         <h2 class="text-2xl font-semibold mb-4 text-gray-700">
-          You scored the most at <span class="text-blue-600 font-bold">{{ getCategoryName(topCategories[0]) }}</span>
+          <span v-if="topCategories.length === 1">
+            You scored the most at <span class="text-blue-600 font-bold">{{ getCategoryName(topCategories[0]) }}</span>
+          </span>
+          <span v-else>
+            You scored the most at: 
+            <span v-for="(category, index) in topCategories" :key="category" class="text-blue-600 font-bold">
+              {{ getCategoryName(category) }}<span v-if="index < topCategories.length - 2">, </span><span v-else-if="index === topCategories.length - 2"> and </span>
+            </span>
+          </span>
         </h2>
         
         <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl mb-6 max-w-2xl mx-auto">

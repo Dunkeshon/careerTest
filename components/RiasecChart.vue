@@ -116,6 +116,10 @@ const comparisonOptions = [
   }
 ]
 
+// Debug: Check for duplicates
+console.log('Comparison options:', comparisonOptions.map(o => o.label))
+console.log('Unique values:', [...new Set(comparisonOptions.map(o => o.value))])
+
 const displayMode = ref('closest')
 const matchMode = ref('best')
 const showLines = ref(true)
@@ -821,6 +825,7 @@ canvas {
 @media (min-width: 600px) {
   .comparison-grid {
     grid-template-columns: repeat(3, 1fr);
+    justify-items: start;
   }
 }
 </style> 
