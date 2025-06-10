@@ -1,32 +1,34 @@
-import { jwtVerify } from 'jose'
-
-const JWT_SECRET = new TextEncoder().encode('your-super-secure-jwt-secret-key-change-this-in-production')
+import { initializeSession } from './session'
 
 export async function verifyAdminAuth(event) {
-  const token = getCookie(event, 'admin-token')
+  // Initialize session and passport
+  const { req } = await initializeSession(event)
   
-  if (!token) {
+  // Check if user is authenticated via passport session
+  if (!req.user) {
     throw createError({
       statusCode: 401,
       statusMessage: 'Authentication required'
     })
   }
 
-  try {
-    const { payload } = await jwtVerify(token, JWT_SECRET)
-    
-    if (payload.role !== 'admin') {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'Admin access required'
-      })
-    }
-    
-    return payload
-  } catch (error) {
+  // Check if user has admin role
+  if (req.user.role !== 'admin') {
     throw createError({
-      statusCode: 401,
-      statusMessage: 'Invalid or expired token'
+      statusCode: 403,
+      statusMessage: 'Admin access required'
     })
+  }
+  
+  return req.user
+}
+
+// Helper function to check if user is authenticated
+export async function isAuthenticated(event) {
+  try {
+    const { req } = await initializeSession(event)
+    return req.user && req.user.role === 'admin'
+  } catch {
+    return false
   }
 } 

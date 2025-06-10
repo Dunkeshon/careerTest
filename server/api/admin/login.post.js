@@ -1,47 +1,60 @@
-import bcrypt from 'bcryptjs'
-import { SignJWT } from 'jose'
-
-const ADMIN_PASSWORD_HASH = '$2a$12$b.Z.ZxnNQP2ZiTUeedAbTOUNumhAFgcykhVYh7/K7T7N2FBmZq6/q' // admin12345
-const JWT_SECRET = new TextEncoder().encode('your-super-secure-jwt-secret-key-change-this-in-production')
+import passport from '~/server/utils/passport'
+import { initializeSession } from '~/server/utils/session'
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    const { password } = body
+    const { username, password } = body
 
-    if (!password) {
+    if (!username || !password) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Password is required'
+        statusMessage: 'Username and password are required'
       })
     }
 
-    // Compare the provided password with the hashed password
-    const isValid = await bcrypt.compare(password, ADMIN_PASSWORD_HASH)
-    
-    if (!isValid) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Invalid credentials'
-      })
-    }
+    // Initialize session and passport
+    const { req, res } = await initializeSession(event)
 
-    // Create JWT token
-    const token = await new SignJWT({ role: 'admin' })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('24h')
-      .sign(JWT_SECRET)
+    // Authenticate with passport
+    const user = await new Promise((resolve, reject) => {
+      const authCallback = (err, user, info) => {
+        if (err) {
+          reject(err)
+        } else if (!user) {
+          reject(createError({
+            statusCode: 401,
+            statusMessage: info?.message || 'Invalid credentials'
+          }))
+        } else {
+          resolve(user)
+        }
+      }
 
-    // Set secure cookie
-    setCookie(event, 'admin-token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24 // 24 hours
+      // Create a mock request object for passport
+      const mockReq = {
+        ...req,
+        body: { username, password }
+      }
+
+      passport.authenticate('local', authCallback)(mockReq, res, () => {})
     })
 
-    return { success: true, message: 'Login successful' }
+    // Log in the user (serialize to session)
+    await new Promise((resolve, reject) => {
+      req.logIn(user, (err) => {
+        if (err) {
+          reject(createError({
+            statusCode: 500,
+            statusMessage: 'Failed to log in user'
+          }))
+        } else {
+          resolve()
+        }
+      })
+    })
+
+    return { success: true, message: 'Login successful', user: { username: user.username, role: user.role } }
   } catch (error) {
     if (error.statusCode) {
       throw error

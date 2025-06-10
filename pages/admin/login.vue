@@ -8,6 +8,20 @@
 
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">
+            Username
+          </label>
+          <input
+            id="username"
+            v-model="username"
+            type="text"
+            required
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Enter username"
+          />
+        </div>
+        
+        <div>
           <label for="password" class="block text-sm font-medium text-gray-700">
             Password
           </label>
@@ -43,13 +57,14 @@ definePageMeta({
   layout: false
 })
 
+const username = ref('')
 const password = ref('')
 const loading = ref(false)
 const error = ref('')
 
 const handleLogin = async () => {
-  if (!password.value) {
-    error.value = 'Password is required'
+  if (!username.value || !password.value) {
+    error.value = 'Username and password are required'
     return
   }
 
@@ -59,7 +74,10 @@ const handleLogin = async () => {
   try {
     const data = await $fetch('/api/admin/login', {
       method: 'POST',
-      body: { password: password.value }
+      body: { 
+        username: username.value,
+        password: password.value 
+      }
     })
 
     if (data?.success) {
