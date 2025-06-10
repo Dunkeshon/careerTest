@@ -6,19 +6,20 @@
     ref="cardRef"
   >
     <NuxtImg
-      src="/testImage.png"
+      :src="questionImage"
       alt="Question Image"
       class="question-image w-full object-cover rounded-xl mb-4"
       :class="active ? 'image-active' : 'image-disabled'"
-      width="430"
+      width="350"
       height="350"
       format="webp"
       quality="70"
       loading="lazy"
       decoding="async"
+      @error="handleImageError"
     />
     <div class="question-text text-center mb-4 text-lg font-medium no-mx">
-      {{ question }}
+      {{ questionText }}
     </div>
     <div class="flex flex-col items-center w-full">
       <div class="flex flex-row justify-between items-center w-full max-w-xs mx-auto gap-2">
@@ -56,7 +57,7 @@
 import { ref, watch, nextTick, computed } from 'vue'
 import { NuxtImg } from '#components'
 const props = defineProps({
-  question: String,
+  question: [String, Object],
   value: Number,
   active: Boolean,
   index: Number
@@ -64,11 +65,35 @@ const props = defineProps({
 const emit = defineEmits(['update:value', 'activate'])
 const cardRef = ref(null)
 
+// Computed properties to handle both string and object question formats
+const questionText = computed(() => {
+  return typeof props.question === 'string' ? props.question : props.question?.question || ''
+})
+
+const questionImage = computed(() => {
+  if (typeof props.question === 'string') {
+    return '/testImage.png' // fallback for old format
+  }
+  
+  // If question has an image, use it; otherwise use default or fallback
+  if (props.question?.image) {
+    return props.question.image
+  }
+  
+  // Check if default image exists, otherwise use testImage.png
+  return '/images/default/default.webp'
+})
+
 function select(n) {
   if (props.active) emit('update:value', n)
 }
 function activate() {
   if (!props.active) emit('activate', props.index)
+}
+
+function handleImageError(event) {
+  // Fallback to testImage.png if image fails to load
+  event.target.src = '/testImage.png'
 }
 
 watch(() => props.active, (newVal) => {
@@ -115,10 +140,14 @@ function circleFillClass(n) {
   opacity: 0.7;
 }
 .question-image {
-  height: 350px;
   width: 100%;
-  object-fit: cover;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
   transition: filter 0.2s, opacity 0.2s;
+  max-width: 350px;
+  max-height: 350px;
+  margin: 0 auto 16px auto;
 }
 .image-active {
   filter: none;

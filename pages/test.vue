@@ -164,10 +164,8 @@ function scoreUnansweredWithMinimum() {
 
 onMounted(async () => {
   try {
-    const response = await fetch('/only questions.csv')
-    const text = await response.text()
-    const questionsList = text.split('\n').filter(q => q.trim())
-    questions.value = shuffleArray(questionsList)
+    const data = await $fetch('/api/questions-with-images')
+    questions.value = shuffleArray(data.questions)
     answers.value = new Array(questions.value.length).fill(null)
     isLoading.value = false
 
@@ -183,7 +181,7 @@ function handleKeydown(e) {
   // Handle number keys 1-5 for answering current question
   if (['1', '2', '3', '4', '5'].includes(e.key)) {
     const rating = parseInt(e.key)
-    if (activeIndex.value !== null && answers.value[activeIndex.value] === null) {
+    if (activeIndex.value !== null) {
       onAnswer(activeIndex.value, rating)
     }
   }
@@ -288,7 +286,7 @@ const submitAnswers = async () => {
   try {
     // Format answers as array of { questionId, score }
     const formattedAnswers = answers.value.map((score, index) => ({
-      questionId: index + 1,
+      questionId: questions.value[index]?.id || (index + 1),
       score: score
     }))
 
