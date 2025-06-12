@@ -136,9 +136,11 @@ function getRandomAnswer() {
 
 // Function to answer first 41 questions randomly
 function answerFirst41Randomly() {
+  console.log('Answering first 41 questions randomly...')
   for (let i = 0; i < 41; i++) {
     answers.value[i] = getRandomAnswer()
   }
+  console.log(`Answered ${41} questions. Total questions: ${questions.value.length}`)
   // Go to last page
   page.value = Math.floor((questions.value.length - 1) / PAGE_SIZE)
   setActive(pageStart.value)
@@ -178,6 +180,11 @@ onMounted(async () => {
 
 // Keyboard event handler
 function handleKeydown(e) {
+  // Ignore if typing in an input field
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+    return
+  }
+  
   // Handle number keys 1-5 for answering current question
   if (['1', '2', '3', '4', '5'].includes(e.key)) {
     const rating = parseInt(e.key)
@@ -187,8 +194,10 @@ function handleKeydown(e) {
   }
   // Development shortcuts
   else if (e.key.toLowerCase() === 'q') {
+    console.log('Q key pressed - answering first 41 questions randomly')
     answerFirst41Randomly()
   } else if (e.key === '0') {
+    console.log('0 key pressed - scoring unanswered with minimum')
     scoreUnansweredWithMinimum()
   }
 }

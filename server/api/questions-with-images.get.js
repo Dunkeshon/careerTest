@@ -43,12 +43,6 @@ export default defineEventHandler(async (event) => {
         return {
           id: question['#'],
           question: question['Question (*when given maximum points (5/5))'],
-          R: parseInt(question.R) || 0,
-          I: parseInt(question.I) || 0,
-          A: parseInt(question.A) || 0,
-          S: parseInt(question.S) || 0,
-          E: parseInt(question.E) || 0,
-          C: parseInt(question.C) || 0,
           image: imagePath
         }
       })
