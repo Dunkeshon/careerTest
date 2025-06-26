@@ -161,6 +161,18 @@ const error = ref('')
 const uploading = ref(false)
 const defaultImage = ref('')
 
+// Store scroll position to prevent page jump
+const preserveScrollPosition = async (callback) => {
+  const scrollPosition = window.scrollY
+  try {
+    await callback()
+  } finally {
+    // Restore scroll position after DOM updates
+    await nextTick()
+    window.scrollTo(0, scrollPosition)
+  }
+}
+
 // Check for default image
 const checkDefaultImage = async () => {
   try {
@@ -197,27 +209,29 @@ const uploadQuestionImage = async (event, questionId) => {
 
   uploading.value = true
   
-  try {
-    const formData = new FormData()
-    formData.append('image', file)
-    formData.append('questionId', questionId)
-    formData.append('imageType', 'question')
+  await preserveScrollPosition(async () => {
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+      formData.append('questionId', questionId)
+      formData.append('imageType', 'question')
 
-    await $fetch('/api/admin/upload-image', {
-      method: 'POST',
-      body: formData
-    })
+      await $fetch('/api/admin/upload-image', {
+        method: 'POST',
+        body: formData
+      })
 
-    // Reload questions to update the UI
-    await loadQuestions()
-    
-    // Clear file input
-    event.target.value = ''
-  } catch (err) {
-    alert('Failed to upload image: ' + (err.statusMessage || 'Unknown error'))
-  } finally {
-    uploading.value = false
-  }
+      // Reload questions to update the UI
+      await loadQuestions()
+      
+      // Clear file input
+      event.target.value = ''
+    } catch (err) {
+      alert('Failed to upload image: ' + (err.statusMessage || 'Unknown error'))
+    } finally {
+      uploading.value = false
+    }
+  })
 }
 
 // Upload default image
@@ -227,58 +241,64 @@ const uploadDefaultImage = async (event) => {
 
   uploading.value = true
   
-  try {
-    const formData = new FormData()
-    formData.append('image', file)
-    formData.append('imageType', 'default')
+  await preserveScrollPosition(async () => {
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+      formData.append('imageType', 'default')
 
-    await $fetch('/api/admin/upload-image', {
-      method: 'POST',
-      body: formData
-    })
+      await $fetch('/api/admin/upload-image', {
+        method: 'POST',
+        body: formData
+      })
 
-    await checkDefaultImage()
-    
-    // Clear file input
-    event.target.value = ''
-  } catch (err) {
-    alert('Failed to upload default image: ' + (err.statusMessage || 'Unknown error'))
-  } finally {
-    uploading.value = false
-  }
+      await checkDefaultImage()
+      
+      // Clear file input
+      event.target.value = ''
+    } catch (err) {
+      alert('Failed to upload default image: ' + (err.statusMessage || 'Unknown error'))
+    } finally {
+      uploading.value = false
+    }
+  })
 }
 
 // Delete question image
 const deleteQuestionImage = async (questionId) => {
   if (!confirm('Are you sure you want to delete this image?')) return
 
-  try {
-    await $fetch('/api/admin/delete-image', {
-      method: 'POST',
-      body: { questionId, imageType: 'question' }
-    })
+  await preserveScrollPosition(async () => {
+    try {
+      await $fetch('/api/admin/delete-image', {
+        method: 'POST',
+        body: { questionId, imageType: 'question' }
+      })
 
-    // Reload questions to update the UI
-    await loadQuestions()
-  } catch (err) {
-    alert('Failed to delete image: ' + (err.statusMessage || 'Unknown error'))
-  }
+      // Reload questions to update the UI
+      await loadQuestions()
+    } catch (err) {
+      alert('Failed to delete image: ' + (err.statusMessage || 'Unknown error'))
+    }
+  })
 }
 
 // Delete default image
 const deleteDefaultImage = async () => {
   if (!confirm('Are you sure you want to delete the default image?')) return
 
-  try {
-    await $fetch('/api/admin/delete-image', {
-      method: 'POST',
-      body: { imageType: 'default' }
-    })
+  await preserveScrollPosition(async () => {
+    try {
+      await $fetch('/api/admin/delete-image', {
+        method: 'POST',
+        body: { imageType: 'default' }
+      })
 
-    defaultImage.value = ''
-  } catch (err) {
-    alert('Failed to delete default image: ' + (err.statusMessage || 'Unknown error'))
-  }
+      defaultImage.value = ''
+    } catch (err) {
+      alert('Failed to delete default image: ' + (err.statusMessage || 'Unknown error'))
+    }
+  })
 }
 
 // Logout

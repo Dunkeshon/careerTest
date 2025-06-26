@@ -82,7 +82,7 @@ export default defineEventHandler(async (event) => {
 
     // Process and save image as square
     await sharp(file.filepath)
-      .resize(350, 350, { fit: 'cover', position: 'center' })
+      .resize(1028, 1028, { fit: 'cover', position: 'center' })
       .webp({ quality: 100 })
       .toFile(targetPath)
 
