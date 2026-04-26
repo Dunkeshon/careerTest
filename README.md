@@ -1,3 +1,7 @@
+![image](./DOCS/User%20test.png)
+![image](./DOCS/adminDashboard.png)
+![image](./DOCS/dunkeshon_fill_the_gap_--ar_8257_--v_7_2dc9c2ae-60cf-4654-953d-d2ee357707a1_3.png)
+![image](./DOCS/dunkeshon_fill_the_gap_--ar_9251_--v_7_37a87bf5-79f3-467d-8445-090fa574af06_3.png)
 # Nuxt Minimal Starter
 
 Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
